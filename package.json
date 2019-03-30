@@ -1,0 +1,36 @@
+{
+  "name": "solar-power-skir",
+  "version": "0.1.0",
+  "description": "solar power production in skir",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "watch": "webpack --watch",
+    "heroku-postbuild": "webpack -p"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erdtman/solar-power-skir.git"
+  },
+  "author": "Samuel Erdtman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/erdtman/solar-power-skir/issues"
+  },
+  "homepage": "https://github.com/erdtman/solar-power-skir#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "express": "^4.16.4",
+    "vue": "^2.6.10",
+    "vue-router": "^3.0.2"
+  },
+  "devDependencies": {
+    "css-loader": "^2.1.1",
+    "vue-loader": "^15.7.0",
+    "vue-style-loader": "^4.1.2",
+    "vue-template-compiler": "^2.6.10",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0"
+  }
+}
