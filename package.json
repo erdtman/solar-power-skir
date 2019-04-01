@@ -21,7 +21,10 @@
   "homepage": "https://github.com/erdtman/solar-power-skir#readme",
   "dependencies": {
     "axios": "^0.18.0",
+    "dotenv": "^7.0.0",
     "express": "^4.16.4",
+    "moment": "^2.24.0",
+    "mongodb": "^3.2.2",
     "vue": "^2.6.10",
     "vue-router": "^3.0.2"
   },
