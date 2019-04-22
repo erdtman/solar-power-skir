@@ -29,7 +29,8 @@ const mapping = {
   "DAY": DAY,
   "WEEK": WEEK,
   "MONTH": MONTH,
-  "YEAR": YEAR
+  "YEAR": YEAR,
+  "TOTAL": 1
 }
 
 exports.readLast = function (id, interval) {
@@ -39,47 +40,59 @@ exports.readLast = function (id, interval) {
     }
     interval = (interval === "WEEK" ? 'isoWeek' : interval);
     
-    const start = moment().startOf(interval).get();
-
+    let start;
+    if(interval=== "TOTAL") {
+      start = 0;
+    } else {
+      start = moment().startOf(interval).valueOf();
+    }
+    
     const collection = db.get().collection('ticks');
-    const count = await collection.countDocuments({ id: id, time: { "$gte": start } })
+    const count = await collection.countDocuments({ id: id, time: { "$gte": start } });
     resolve((count / 500).toFixed(2)); // TODO set correct divition
   });
 }
 
 exports.history = function (id, interval) {
   return new Promise(async (resolve, reject) => {
-    let start = 0;
-    let now = new Date().getTime();
     const collection = db.get().collection('ticks');
 
     let stepsize = 0;
     let steps = 0;
     let format = ""
-    if (interval === "HOUR") {
-      stepsize = (5 * MINUTE)
+
+  
+    let start = 0;
+    
+    if (interval === "DAY") {
+      start = moment().startOf("DAY").valueOf();
       steps = 24;
-      format = "HH:mm";
-    } else if (interval === "DAY") {
       stepsize = HOUR;
-      steps = 24;
-      format = "dddd HH:mm";
-    } else if (interval === "MONTH") {
+      format = "HH:mm";
+    } else if(interval === "MONTH") {
+      start = moment().startOf("MONTH").valueOf();
+      steps = moment().daysInMonth();
       stepsize = DAY;
-      steps = 30;
-      format = "YYYY-MM-DD";
-    } else if (interval === "YEAR") {
+      format = "Do";
+    } else if(interval === "YEAR") {
+      start = moment().startOf("YEAR").valueOf();
+      steps = moment().weeksInYear()
       stepsize = WEEK;
-      steps = 52;
-      format = "w ww";
+      format = "[Vecka] W";
+    } else {
+      throw Error(`Unknown interval '${interval}'`)
     }
 
-    now -= (now % stepsize);
-    start = now - (steps * stepsize)
-
     const boundaries = [];
+    const buckets = {};
     for (let i = 0; i <= steps; i++) {
-      boundaries.push(start + (i * stepsize));
+      const id = start + (i * stepsize)
+      boundaries.push(id);
+      buckets[id] = {
+        label: moment(id).format(format),
+        ticks: 0, 
+        kwh: 0
+      }
     }
 
     collection.aggregate([
@@ -101,16 +114,15 @@ exports.history = function (id, interval) {
         return reject(err);
       }
 
-      docs = docs
-        .filter(doc => {
-          return doc._id !== "Other";
-        })
-        .map(doc => {
-          doc.label = moment(doc._id).format(format);
-          return doc;
-        });
+      docs.forEach(doc => {
+        if(doc._id === "Other") {
+          return;
+        }
+        buckets[doc._id].kwh = doc.kwh;
+        buckets[doc._id].ticks = doc.ticks;
+      });
 
-      resolve(docs);
+      resolve(Object.values(buckets));
     });
   });
 }
