@@ -103,7 +103,7 @@ exports.history = function (id, interval) {
           "boundaries": boundaries,
           "default": "Other",
           output: {
-            "ticks": { $sum: 1 },
+            "ticks": { $sum: {$ifNull: [ "$tick_count", 1 ]} },
           }
         }
       },
