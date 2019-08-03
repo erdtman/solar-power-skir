@@ -5,12 +5,16 @@
 const db = require('../db');
 const moment = require('moment');
 
-exports.create = function (id) {
+exports.create = function (id, tick_count) {
   const tick = {
     "id": id,
     "time": new Date().getTime()
   };
-    
+
+  if (tick_count && tick_count !== '1') {
+    tick.tick_count = parseInt(tick_count, 10);
+  }
+  
   const collection = db.get().collection('ticks');
   collection.insertOne(tick);
 };
@@ -48,8 +52,25 @@ exports.readLast = function (id, interval) {
     }
     
     const collection = db.get().collection('ticks');
-    const count = await collection.countDocuments({ id: id, time: { "$gte": start } });
-    resolve((count / 500).toFixed(2)); // TODO set correct divition
+
+    const count = await collection.aggregate([ { 
+      $match: { 
+        "time": { 
+          "$gte": start
+        } 
+      } 
+    }, { 
+      $group: { 
+        _id : null, 
+        ticks : { 
+          $sum: { 
+            $ifNull: [ "$tick_count", 1 ] 
+          }  
+        } 
+      } 
+    }]).next();
+
+    resolve((count.ticks / 500).toFixed(2)); // TODO set correct divition
   });
 }
 
@@ -95,7 +116,7 @@ exports.history = function (id, interval) {
       }
     }
 
-    collection.aggregate([
+    const docs = await collection.aggregate([
       { "$match": { "id": id, time: { $gte: start } } },
       {
         "$bucket": {
@@ -109,20 +130,15 @@ exports.history = function (id, interval) {
       },
       { "$addFields": { "kwh": { '$divide': ['$ticks', 500] } } },
       { "$sort": { '_id': 1 } }
-    ]).toArray(function (err, docs) {
-      if (err) {
-        return reject(err);
+    ]).toArray();
+
+    docs.forEach(doc => {
+      if(doc._id === "Other") {
+        return;
       }
-
-      docs.forEach(doc => {
-        if(doc._id === "Other") {
-          return;
-        }
-        buckets[doc._id].kwh = doc.kwh;
-        buckets[doc._id].ticks = doc.ticks;
-      });
-
-      resolve(Object.values(buckets));
+      buckets[doc._id].kwh = doc.kwh;
+      buckets[doc._id].ticks = doc.ticks;
     });
+    resolve(Object.values(buckets));
   });
 }
