@@ -6,11 +6,14 @@
 <script>
 import Chart from "chart.js";
 import axios from "axios";
+import {mixin as VueTimers} from 'vue-timers'
 
 export default {
+  mixins: [VueTimers],
   props: ["interval", "height"],
   data() {
     return {
+      chart: null,
       chartData: {
         labels: [],
         datasets: [
@@ -31,6 +34,9 @@ export default {
       chartType: "bar",
       chartOptions: {
         maintainAspectRatio: false,
+        animation: {
+          duration: 0
+        },
         title: {
           display: true,
           position: "top",
@@ -67,30 +73,43 @@ export default {
     };
   },
   async mounted() {
-    await this.read("test1", this.chartData.datasets[0], this.chartData.labels);
-    await this.read("test2", this.chartData.datasets[1]);
-    await this.read("test3", this.chartData.datasets[2]);
-
-    new Chart(this.$refs.canvas, {
-      type: this.chartType,
-      data: this.chartData,
-      options: this.chartOptions
-    });
+    this.chart = new Chart(this.$refs.canvas, {
+        type: this.chartType,
+        data: this.chartData,
+        options: this.chartOptions
+      });
+    this.update();
   },
   methods: {
-    async read(chartId, dataset, labels) {
-      const resp = await axios.get(
-        `/api/tick/${chartId}/graph?interval=${this.interval}`
-      );
+    async update() {
+      const [test1, test2, test3] = await Promise.all([
+      axios.get(`/api/tick/test1/graph?interval=${this.interval}`),
+      axios.get(`/api/tick/test2/graph?interval=${this.interval}`),
+      axios.get(`/api/tick/test3/graph?interval=${this.interval}`)]);
 
-      this.chartOptions.title.text = resp.data.label;
-
-      resp.data.history.forEach(element => {
-        if (labels) {
-          labels.push(element.label);
-        }
-        dataset.data.push(element.kwh);
+      this.chartOptions.title.text = test1.data.label;
+      this.chartData.labels = [];
+      test1.data.history.forEach(element => {
+        this.chartData.labels.push(element.label);
       });
+
+      this.chartData.datasets[0].data = [];
+      test1.data.history.forEach(element => {
+        this.chartData.datasets[0].data.push(element.kwh);
+      });
+
+      this.chartData.datasets[1].data = [];
+      test2.data.history.forEach(element => {
+        this.chartData.datasets[1].data.push(element.kwh);
+      });
+
+      this.chartData.datasets[2].data = [];
+      test3.data.history.forEach(element => {
+        this.chartData.datasets[2].data.push(element.kwh);
+      });
+
+      this.chart.update();
+      setTimeout(this.update, 60000);
     }
   }
 };

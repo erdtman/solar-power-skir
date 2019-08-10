@@ -100,11 +100,16 @@ export default {
     }
   },
   async mounted() {
-    const response = await axios.get("/api");
-    
-    this.data = response.data;
-
+    this.update();
     // TODO error handling
-  }
+  },
+  methods: {
+    async update() {
+       const response = await axios.get("/api");
+       this.data = response.data;
+       setTimeout(this.update, 60000);
+    }
+  } 
+
 };
 </script>
