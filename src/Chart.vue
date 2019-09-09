@@ -82,34 +82,39 @@ export default {
   },
   methods: {
     async update() {
-      const [test1, test2, test3] = await Promise.all([
-      axios.get(`/api/tick/test1/graph?interval=${this.interval}`),
-      axios.get(`/api/tick/test2/graph?interval=${this.interval}`),
-      axios.get(`/api/tick/test3/graph?interval=${this.interval}`)]);
+      try {
+        const [test1, test2, test3] = await Promise.all([
+        axios.get(`/api/tick/test1/graph?interval=${this.interval}`),
+        axios.get(`/api/tick/test2/graph?interval=${this.interval}`),
+        axios.get(`/api/tick/test3/graph?interval=${this.interval}`)]);
 
-      this.chartOptions.title.text = test1.data.label;
-      this.chartData.labels = [];
-      test1.data.history.forEach(element => {
-        this.chartData.labels.push(element.label);
-      });
+        this.chartOptions.title.text = test1.data.label;
+        this.chartData.labels = [];
+        test1.data.history.forEach(element => {
+          this.chartData.labels.push(element.label);
+        });
 
-      this.chartData.datasets[0].data = [];
-      test1.data.history.forEach(element => {
-        this.chartData.datasets[0].data.push(element.kwh);
-      });
+        this.chartData.datasets[0].data = [];
+        test1.data.history.forEach(element => {
+          this.chartData.datasets[0].data.push(element.kwh);
+        });
 
-      this.chartData.datasets[1].data = [];
-      test2.data.history.forEach(element => {
-        this.chartData.datasets[1].data.push(element.kwh);
-      });
+        this.chartData.datasets[1].data = [];
+        test2.data.history.forEach(element => {
+          this.chartData.datasets[1].data.push(element.kwh);
+        });
 
-      this.chartData.datasets[2].data = [];
-      test3.data.history.forEach(element => {
-        this.chartData.datasets[2].data.push(element.kwh);
-      });
+        this.chartData.datasets[2].data = [];
+        test3.data.history.forEach(element => {
+          this.chartData.datasets[2].data.push(element.kwh);
+        });
 
-      this.chart.update();
-      setTimeout(this.update, 60000);
+        this.chart.update();
+      } catch (error) {
+        console.log(`error: ${error.message}`);
+      }
+      
+      setTimeout(this.update, 30000);
     }
   }
 };
