@@ -34,10 +34,11 @@ const mapping = {
   "WEEK": WEEK,
   "MONTH": MONTH,
   "YEAR": YEAR,
-  "TOTAL": 1
+  "TOTAL": 1,
+  "5_MIN": 2
 }
 
-exports.readLast = function (id, interval) {
+exports.readLast = function (id, interval, multiplyWith) {
   return new Promise(async (resolve, reject) => {
     if (!mapping[interval]) {
       reject(`Unknown interval, ${interval}`);
@@ -45,22 +46,20 @@ exports.readLast = function (id, interval) {
     interval = (interval === "WEEK" ? 'isoWeek' : interval);
     
     let start;
-    if(interval=== "TOTAL") {
+    if (interval=== "TOTAL") {
       start = 0;
+    } else if (interval === "5_MIN") {
+      const now = new Date().getTime();
+      start = now - MINUTE * 5;
     } else {
       start = moment().startOf(interval).valueOf();
     }
     
     const collection = db.get().collection('ticks');
 
-    const count = await collection.aggregate([ { 
-      $match: { 
-        "time": { 
-          "$gte": start
-        } 
-      } 
-    }, { 
-      $group: { 
+    const count = await collection.aggregate([ 
+      { $match: { "id": id, time: { $gte: start } } }, 
+      { $group: { 
         _id : null, 
         ticks : { 
           $sum: { 
@@ -70,7 +69,7 @@ exports.readLast = function (id, interval) {
       } 
     }]).next();
 
-    resolve((count.ticks / 500).toFixed(2)); // TODO set correct divition
+    resolve((count.ticks / 500 * multiplyWith).toFixed(2)); // TODO set correct divition
   });
 }
 

@@ -16,24 +16,27 @@ router.get('/', async (req, res) => {
   };
 
   data.weave_room = {
-    today_value: await tick.readLast('test1', 'DAY'),
-    month_value: await tick.readLast('test1', 'MONTH'),
-    year_value: await tick.readLast('test1', 'YEAR'),
-    total_value: await tick.readLast('test1', 'TOTAL')
+    now_value: await tick.readLast('test1', '5_MIN', 12), 
+    today_value: await tick.readLast('test1', 'DAY', 1),
+    month_value: await tick.readLast('test1', 'MONTH', 1),
+    year_value: await tick.readLast('test1', 'YEAR', 1),
+    total_value: await tick.readLast('test1', 'TOTAL', 1) 
   };
 
   data.tractor_garage = {
-    today_value: 3,
-    month_value: 32,
-    year_value: 124,
-    total_value: 4321
+    now_value: 0,
+    today_value: 0,
+    month_value: 0,
+    year_value: 0,
+    total_value: 0
   };
 
   data.glade = {
-    today_value: 43,
-    month_value: 121,
-    year_value: 342,
-    total_value: 1233
+    now_value: 0,
+    today_value: 0,
+    month_value: 0,
+    year_value: 0,
+    total_value: 0
   };
 
   res.json(data);

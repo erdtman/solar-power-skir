@@ -1,7 +1,10 @@
 <template>
   <div class="container" v-if="data !== null">
     <div class="columns">
-      <div class="column col-3"></div>
+      <div class="column col-2"></div>
+      <div class="column col-2">
+        <h1>Nu</h1>
+      </div>
       <div class="column col-2">
         <h1>Idag</h1>
       </div>
@@ -16,8 +19,11 @@
       </div>
     </div>
     <div class="columns">
-      <div class="column col-3">
+      <div class="column col-2">
         <h2>Vävrumet</h2>
+      </div>
+      <div class="column col-2">
+        <h2>{{data.weave_room.now_value}} KWh</h2>
       </div>
       <div class="column col-2">
         <h2>{{data.weave_room.today_value}} KWh</h2>
@@ -37,6 +43,9 @@
         <h2>Traktorgaraget</h2>
       </div>
       <div class="column col-2">
+        <h2>{{data.tractor_garage.now_value}} KWh</h2>
+      </div>
+      <div class="column col-2">
         <h2>{{data.tractor_garage.today_value}} KWh</h2>
       </div>
       <div class="column col-2">
@@ -52,6 +61,9 @@
     <div class="columns">
       <div class="column col-3">
         <h2>Skogsgläntan</h2>
+      </div>
+      <div class="column col-2">
+        <h2>{{data.glade.now_value}} KWh</h2>
       </div>
       <div class="column col-2">
         <h2>{{data.glade.today_value}} KWh</h2>
@@ -101,13 +113,18 @@ export default {
   },
   async mounted() {
     this.update();
-    // TODO error handling
   },
   methods: {
     async update() {
-       const response = await axios.get("/api");
-       this.data = response.data;
-       setTimeout(this.update, 60000);
+      try {
+        const response = await axios.get("/api");
+        this.data = response.data;
+        setTimeout(this.update, 60000);
+      } catch (error) {
+        console.log(`error: ${error.message}`);
+      }
+
+      setTimeout(this.update, 30000);
     }
   } 
 
