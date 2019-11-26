@@ -83,9 +83,9 @@ export default {
   methods: {
     async update() {
       try {
-        const [test1, test2, test3] = await Promise.all([
+        const [test1, traktorgaraget, test3] = await Promise.all([
         axios.get(`/api/tick/test1/graph?interval=${this.interval}`),
-        axios.get(`/api/tick/test2/graph?interval=${this.interval}`),
+        axios.get(`/api/tick/traktorgaraget/graph?interval=${this.interval}`),
         axios.get(`/api/tick/test3/graph?interval=${this.interval}`)]);
 
         this.chartOptions.title.text = test1.data.label;
@@ -100,7 +100,7 @@ export default {
         });
 
         this.chartData.datasets[1].data = [];
-        test2.data.history.forEach(element => {
+        traktorgaraget.data.history.forEach(element => {
           this.chartData.datasets[1].data.push(element.kwh);
         });
 

@@ -16,19 +16,19 @@ router.get('/', async (req, res) => {
   };
 
   data.weave_room = {
-    now_value: await tick.readLast('test1', '5_MIN', 12), 
-    today_value: await tick.readLast('test1', 'DAY', 1),
-    month_value: await tick.readLast('test1', 'MONTH', 1),
-    year_value: await tick.readLast('test1', 'YEAR', 1),
-    total_value: await tick.readLast('test1', 'TOTAL', 1) 
-  };
-
-  data.tractor_garage = {
     now_value: 0,
     today_value: 0,
     month_value: 0,
     year_value: 0,
     total_value: 0
+  };
+
+  data.tractor_garage = {
+    now_value: await tick.readLast('traktorgaraget', '5_MIN', 12), 
+    today_value: await tick.readLast('traktorgaraget', 'DAY', 1),
+    month_value: await tick.readLast('traktorgaraget', 'MONTH', 1),
+    year_value: await tick.readLast('traktorgaraget', 'YEAR', 1),
+    total_value: await tick.readLast('traktorgaraget', 'TOTAL', 1) 
   };
 
   data.glade = {
@@ -62,7 +62,7 @@ router.get('/tick/:id/last', async (req, res) => {
     throw new Error({ code: 400, message: 'Missing id parameter' });
   }
 
-  const lastX = await tick.readLast(id, interval);
+  const lastX = await tick.readLast(id, interval, 1);
   res.send(lastX);
 });
 

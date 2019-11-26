@@ -41,7 +41,7 @@ const mapping = {
 exports.readLast = function (id, interval, multiplyWith) {
   return new Promise(async (resolve, reject) => {
     if (!mapping[interval]) {
-      reject(`Unknown interval, ${interval}`);
+      return reject(`Unknown interval, ${interval}`);
     }
     interval = (interval === "WEEK" ? 'isoWeek' : interval);
     
@@ -68,6 +68,10 @@ exports.readLast = function (id, interval, multiplyWith) {
         } 
       } 
     }]).next();
+
+    if (!count) {
+      return resolve(0);
+    }
 
     resolve((count.ticks / 500 * multiplyWith).toFixed(2)); // TODO set correct divition
   });
