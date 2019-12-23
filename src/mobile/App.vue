@@ -1,12 +1,47 @@
 <template>
   <div class="container" v-if="data !== null">
     <h1>Erdtmans solelsproduktion!</h1>
-    <div class="columns">
+    <div class="column col-12">
+      <h2>Nu!</h2>
+      <div class="columns">
+        <div class="column col-6">
+          <h5 class="traktor">Traktorgaraget</h5>
+        </div>
+        <div class="column col-6">
+          <h5>{{data.tractor_garage.now_value}} KW</h5>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column col-6">
+          <h5>Vävrummet</h5>
+        </div>
+        <div class="column col-6">
+          <h5>{{data.weave_room.now_value}} KW</h5>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column col-6">
+          <h5>Skogsgläntan</h5>
+        </div>
+        <div class="column col-6">
+          <h5>{{data.glade.now_value}} KW</h5>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column col-6">
+          <h5>Totalt</h5>
+        </div>
+        <div class="column col-6">
+          <h5>{{data.glade.now_value+data.weave_room.now_value+data.tractor_garage.now_value}} KW</h5>
+        </div>
+      </div>
+    </div>
+
       <div class="column col-12">
         <h2>Idag</h2>
         <div class="columns">
           <div class="column col-6">
-            <h5>Traktorgaraget</h5>
+            <h5 class="traktor">Traktorgaraget</h5>
           </div>
           <div class="column col-6">
             <h5>{{data.tractor_garage.today_value}} KWh</h5>
@@ -45,7 +80,7 @@
         <h2>{{data.month_text}}</h2>
         <div class="columns">
           <div class="column col-6">
-            <h5>Traktorgaraget</h5>
+            <h5 class="traktor">Traktorgaraget</h5>
           </div>
           <div class="column col-6">
             <h5> {{data.tractor_garage.month_value}} KWh</h5>
