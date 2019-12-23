@@ -131,7 +131,7 @@ exports.history = function (id, interval) {
           }
         }
       },
-      { "$addFields": { "kwh": { '$divide': ['$ticks', 500] } } },
+      { "$addFields": { "kwh": { '$divide': ['$ticks', 1000] } } },
       { "$sort": { '_id': 1 } }
     ]).toArray();
 

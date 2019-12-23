@@ -4,13 +4,14 @@ const { VueLoaderPlugin } = require('vue-loader')
 
 module.exports = {
   mode: 'development',
-  entry: [
-    './src/app.js'
-  ],
+  entry: {
+    desktop: './src/desktop/app.js',
+    mobile: './src/mobile/app.js',
+  },
   output: {
     path: __dirname + '/view',
     publicPath: '/',
-    filename: 'main.js'
+    filename: '[name]/main.js'
   },
   module: {
     rules: [
