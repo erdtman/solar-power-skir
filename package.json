@@ -29,7 +29,8 @@
     "vue": "^2.6.10",
     "vue-chartjs": "^3.4.2",
     "vue-router": "^3.0.2",
-    "vue-timers": "^2.0.2"
+    "vue-timers": "^2.0.2",
+    "vue2-touch-events": "^2.1.0"
   },
   "devDependencies": {
     "css-loader": "^2.1.1",

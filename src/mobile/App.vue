@@ -5,30 +5,34 @@
       <div class="column col-12">
         <h2>Idag</h2>
         <div class="columns">
-          <div class="column col-3">
-            <h4>Traktorgaraget</h4>
+          <div class="column col-6">
+            <h5>Traktorgaraget</h5>
           </div>
-          <div class="column col-3">
-            <h4>Vävrummet</h4>
-          </div>
-          <div class="column col-3">
-            <h4>Skogsgläntan</h4>
-          </div>
-          <div class="column col-3">
-            <h4>Totalt</h4>
+          <div class="column col-6">
+            <h5>{{data.tractor_garage.today_value}} KWh</h5>
           </div>
         </div>
         <div class="columns">
-          <div class="column col-3">
-            <h5>{{data.tractor_garage.today_value}} KWh</h5>
+          <div class="column col-6">
+            <h5>Vävrummet</h5>
           </div>
-          <div class="column col-3">
+          <div class="column col-6">
             <h5>{{data.weave_room.today_value}} KWh</h5>
           </div>
-          <div class="column col-3">
+        </div>
+        <div class="columns">
+          <div class="column col-6">
+            <h5>Skogsgläntan</h5>
+          </div>
+          <div class="column col-6">
             <h5>{{data.glade.today_value}} KWh</h5>
           </div>
-          <div class="column col-3">
+        </div>
+        <div class="columns">
+          <div class="column col-6">
+            <h5>Totalt</h5>
+          </div>
+          <div class="column col-6">
             <h5>{{data.glade.today_value+data.weave_room.today_value+data.tractor_garage.today_value}} KWh</h5>
           </div>
         </div>
@@ -40,30 +44,34 @@
       <div class="column col-12">
         <h2>{{data.month_text}}</h2>
         <div class="columns">
-          <div class="column col-3">
-            <h4>Traktorgaraget</h4>
+          <div class="column col-6">
+            <h5>Traktorgaraget</h5>
           </div>
-          <div class="column col-3">
-            <h4>Vävrummet</h4>
+          <div class="column col-6">
+            <h5> {{data.tractor_garage.month_value}} KWh</h5>
           </div>
-          <div class="column col-3">
-            <h4>Skogsgläntan</h4>
+        </div>
+         <div class="columns">
+          <div class="column col-6">
+            <h5>Vävrummet</h5>
           </div>
-          <div class="column col-3">
-            <h4>Totalt</h4>
+          <div class="column col-6">
+            <h5>{{data.weave_room.month_value}} KWh</h5>
+          </div>
+        </div>
+         <div class="columns">
+          <div class="column col-6">
+            <h5>Skogsgläntan</h5>
+          </div>
+          <div class="column col-6">
+            <h5>{{data.glade.month_value}} KWh</h5>
           </div>
         </div>
         <div class="columns">
-          <div class="column col-3">
-            <h5>{{data.tractor_garage.month_value}} KWh</h5>
+          <div class="column col-6">
+            <h5>Totalt</h5>
           </div>
-          <div class="column col-3">
-            <h5>{{data.weave_room.month_value}} KWh</h5>
-          </div>
-          <div class="column col-3">
-            <h5>{{data.glade.month_value}} KWh</h5>
-          </div>
-          <div class="column col-3">
+          <div class="column col-6">
             <h5>{{data.glade.month_value+data.weave_room.month_value+data.tractor_garage.month_value}} KWh</h5>
           </div>
         </div>
@@ -74,34 +82,40 @@
 
       <div class="column col-12">
         <h2>{{data.year_text}}</h2>
+
         <div class="columns">
-          <div class="column col-3">
-            <h4>Traktorgaraget</h4>
+          <div class="column col-6">
+            <h5>Traktorgaraget</h5>
           </div>
-          <div class="column col-3">
-            <h4>Vävrummet</h4>
-          </div>
-          <div class="column col-3">
-            <h4>Skogsgläntan</h4>
-          </div>
-          <div class="column col-3">
-            <h4>Totalt</h4>
+          <div class="column col-6">
+            <h5>{{data.tractor_garage.year_value}} KWh</h5>
           </div>
         </div>
         <div class="columns">
-          <div class="column col-3">
-            <h5>{{data.tractor_garage.year_value}} KWh</h5>
+          <div class="column col-6">
+            <h5>Vävrummet</h5>
           </div>
-          <div class="column col-3">
+          <div class="column col-6">
             <h5>{{data.weave_room.year_value}} KWh</h5>
           </div>
-          <div class="column col-3">
+        </div>
+        <div class="columns">
+          <div class="column col-6">
+            <h5>Skogsgläntan</h5>
+          </div>
+          <div class="column col-6">
             <h5>{{data.glade.year_value}} KWh</h5>
           </div>
-          <div class="column col-3">
+        </div>
+        <div class="columns">
+          <div class="column col-6">
+            <h5>Totalt</h5>
+          </div>
+          <div class="column col-6">
             <h5>{{data.glade.year_value+data.weave_room.year_value+data.tractor_garage.year_value}} KWh</h5>
           </div>
         </div>
+        
       </div>
       <div class="column col-12">
         <chart interval="YEAR" height="450px"></chart>
@@ -113,6 +127,10 @@
 <script>
 import axios from "axios";
 import Chart from "./Chart.vue";
+import Vue from 'vue'
+import Vue2TouchEvents from 'vue2-touch-events'
+ 
+Vue.use(Vue2TouchEvents)
 
 
 export default {
@@ -128,6 +146,7 @@ export default {
     this.update();
   },
   methods: {
+
     async update() {
       try {
         const response = await axios.get("/api");
@@ -139,7 +158,6 @@ export default {
 
       setTimeout(this.update, 30000);
     }
-  } 
-
+  },
 };
 </script>
