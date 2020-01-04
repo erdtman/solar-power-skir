@@ -38,7 +38,7 @@ const mapping = {
   "5_MIN": 2
 }
 
-exports.readLast = function (id, interval, multiplyWith) {
+exports.readLast = function (id, interval, multiplyWith, date) {
   return new Promise(async (resolve, reject) => {
     if (!mapping[interval]) {
       return reject(`Unknown interval, ${interval}`);
@@ -73,11 +73,45 @@ exports.readLast = function (id, interval, multiplyWith) {
       return resolve(0);
     }
 
-    resolve((count.ticks / 500 * multiplyWith).toFixed(2)); // TODO set correct divition
+    resolve(count.ticks / 1000 * multiplyWith); // TODO set correct divition
   });
 }
 
-exports.history = function (id, interval) {
+exports.readPeriod = function (id, interval, start_date) {
+  return new Promise(async (resolve, reject) => {
+    if (!mapping[interval]) {
+      return reject(`Unknown interval, ${interval}`);
+    }
+    interval = (interval === "WEEK" ? 'isoWeek' : interval);
+    
+    const start = start_date.startOf(interval).valueOf();
+    const end = start_date.endOf(interval).valueOf();
+    const collection = db.get().collection('ticks');
+
+    const count = await collection.aggregate([ 
+      { $match: { "id": id, $and: [
+        {time: { $gte: start }}, 
+        {time: { $lte: end }}
+      ] } }, 
+      { $group: { 
+        _id : null, 
+        ticks : { 
+          $sum: { 
+            $ifNull: [ "$tick_count", 1 ] 
+          }  
+        } 
+      } 
+    }]).next();
+
+    if (!count) {
+      return resolve(0);
+    }
+
+    resolve(count.ticks / 1000); // TODO set correct divition
+  });
+}
+
+exports.history = function (id, interval, start_date) {
   return new Promise(async (resolve, reject) => {
     const collection = db.get().collection('ticks');
 
@@ -85,22 +119,19 @@ exports.history = function (id, interval) {
     let steps = 0;
     let format = ""
 
-  
-    let start = 0;
-    
+    start_date = start_date || moment()
+    const start = start_date.startOf(interval).valueOf();
+    const end = start_date.endOf(interval).valueOf();
     if (interval === "DAY") {
-      start = moment().startOf("DAY").valueOf();
       steps = 24;
       stepsize = HOUR;
       format = "HH:mm";
     } else if(interval === "MONTH") {
-      start = moment().startOf("MONTH").valueOf();
-      steps = moment().daysInMonth();
+      steps = start_date.daysInMonth();
       stepsize = DAY;
       format = "Do";
     } else if(interval === "YEAR") {
-      start = moment().startOf("YEAR").valueOf();
-      steps = moment().weeksInYear()
+      steps = start_date.weeksInYear()
       stepsize = WEEK;
       format = "[Vecka] W";
     } else {
@@ -120,7 +151,10 @@ exports.history = function (id, interval) {
     }
 
     const docs = await collection.aggregate([
-      { "$match": { "id": id, time: { $gte: start } } },
+      { "$match": { "id": id, $and: [
+        {time: { $gte: start }}, 
+        {time: { $lte: end }}
+      ] } },
       {
         "$bucket": {
           "groupBy": "$time",

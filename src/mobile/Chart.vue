@@ -10,7 +10,7 @@ import {mixin as VueTimers} from 'vue-timers'
 
 export default {
   mixins: [VueTimers],
-  props: ["interval", "height"],
+  props: ["interval", "height", "lookback"],
   data() {
     return {
       chart: null,
@@ -84,9 +84,9 @@ export default {
     async update() {
       try {
         const [vavrummet, traktorgaraget, skogsglantan] = await Promise.all([
-        axios.get(`/api/tick/vavrummet/graph?interval=${this.interval}`),
-        axios.get(`/api/tick/traktorgaraget/graph?interval=${this.interval}`),
-        axios.get(`/api/tick/skogsglantan/graph?interval=${this.interval}`)]);
+        axios.get(`/api/tick/vavrummet/graph?interval=${this.interval}&lookback=${this.lookback}`),
+        axios.get(`/api/tick/traktorgaraget/graph?interval=${this.interval}&lookback=${this.lookback}`),
+        axios.get(`/api/tick/skogsglantan/graph?interval=${this.interval}&lookback=${this.lookback}`)]);
 
         this.chartOptions.title.text = vavrummet.data.label;
         this.chartData.labels = [];

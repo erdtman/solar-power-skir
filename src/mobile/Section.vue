@@ -1,15 +1,13 @@
 <template>
-  <div class="container scroll" v-if="data !== null">
-    <div class="first_child">
-      <h1>Erdtmans solelsproduktion!</h1>
+  <div class="child" v-if="data !== null">
       <div class="column col-12">
-        <h2>Nu!</h2>
+        <h2 class="section_title">{{data.title}}</h2>
         <div class="columns">
           <div class="column col-6">
             <h5 class="traktor">Traktorgaraget</h5>
           </div>
           <div class="column col-6">
-            <h5>{{data.tractor_garage}} KW</h5>
+            <h5>{{data.tractor_garage}} KWh</h5>
           </div>
         </div>
         <div class="columns">
@@ -17,7 +15,7 @@
             <h5>Vävrummet</h5>
           </div>
           <div class="column col-6">
-            <h5>{{data.weave_room}} KW</h5>
+            <h5>{{data.weave_room}} KWh</h5>
           </div>
         </div>
         <div class="columns">
@@ -25,7 +23,7 @@
             <h5>Skogsgläntan</h5>
           </div>
           <div class="column col-6">
-            <h5>{{data.glade}} KW</h5>
+            <h5>{{data.glade}} KWh</h5>
           </div>
         </div>
         <div class="columns">
@@ -33,33 +31,26 @@
             <h5>Totalt</h5>
           </div>
           <div class="column col-6">
-            <h5>{{data.total}} KW</h5>
+            <h5>{{data.total}} KWh</h5>
           </div>
         </div>
       </div>
+      <div class="column col-12">
+        <chart :lookback="this.lookback" :interval="this.interval" height="450px"></chart>
+      </div>
     </div>
-    <div class="child horisontal_scroll">
-      <Section interval="DAY" lookback=0 />
-      <Section interval="DAY" lookback=1 />
-    </div>
-    <div class="child horisontal_scroll">
-      <Section interval="MONTH" lookback=0 />
-      <Section interval="MONTH" lookback=1 />
-    </div>
-    <div class="child">
-      <Section interval="YEAR" lookback=0 />
-    </div>
-  </div>
 </template>
 
+
 <script>
+import Chart from "./Chart.vue";
 import axios from "axios";
-import Section from "./Section.vue";
 
 export default {
   components: {
-    Section
+    Chart
   },
+  props: ["interval", "lookback"],
   data () {
     return {
       data: null,
@@ -69,10 +60,9 @@ export default {
     this.update();
   },
   methods: {
-
     async update() {
       try {
-        const response = await axios.get("/api/now");
+        const response = await axios.get(`/api/period?lookback=${this.lookback}&interval=${this.interval}`);
         this.data = response.data;
         setTimeout(this.update, 60000);
       } catch (error) {
