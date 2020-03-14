@@ -11,7 +11,7 @@ const router = express.Router();
 router.get('/now', async (req, res) => {
   const data = {
     tractor_garage: await tick.readLast('traktorgaraget', '5_MIN', 12),
-    glade: await tick.readLast('glade', '5_MIN', 12),
+    glade: await tick.readLast('skogsglantan', '5_MIN', 12),
     weave_room: await tick.readLast('weave_room', '5_MIN', 12),
   };
   data.total = (data.tractor_garage + data.weave_room + data.glade).toFixed(2);
@@ -38,7 +38,7 @@ const lookback_unit = {
   YEAR: 'years',
 }
 
-router.get('/period', async (req, res) => {  
+router.get('/period', async (req, res) => {
   const lookback = Number(req.query.lookback || 0);
   const interval = req.query.interval || "DAY";
 
@@ -53,7 +53,7 @@ router.get('/period', async (req, res) => {
   const data = {
     title: title[interval](date),
     tractor_garage: await tick.readPeriod('traktorgaraget', interval, date),
-    glade: await tick.readPeriod('glade', interval, date),
+    glade: await tick.readPeriod('skogsglantan', interval, date),
     weave_room: await tick.readPeriod('weave_room', interval, date),
   };
   data.total = (data.tractor_garage + data.weave_room + data.glade).toFixed(2);
@@ -63,15 +63,26 @@ router.get('/period', async (req, res) => {
 
 router.post('/tick/:id', (req, res) => {
   const id = req.params.id;
-  
+
   if (!id) {
     throw new Error({ code: 400, message: 'Missing id parameter' });
   }
-  
+
   const ticks = req.body.tick_count || 1;
-  
+
   tick.create(id, ticks);
   res.send();
+});
+
+router.get('/tick/:id', async (req, res) => {
+  const interval = req.query.interval || "HOUR";
+  const id = req.params.id;
+  if (!id) {
+    throw new Error({ code: 400, message: 'Missing id parameter' });
+  }
+
+  const lastX = await tick.read(id, interval, 1);
+  res.send(lastX);
 });
 
 router.get('/tick/:id/last', async (req, res) => {
@@ -110,7 +121,7 @@ router.get('/tick/:id/graph', async (req, res) => {
     label = moment().format('MMMM');
   } else if (interval === "YEAR") {
     label = moment().format('YYYY');
-  } 
+  }
 
   res.json({
     label: label,

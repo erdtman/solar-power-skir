@@ -14,7 +14,7 @@ exports.create = function (id, tick_count) {
   if (tick_count && tick_count !== '1') {
     tick.tick_count = parseInt(tick_count, 10);
   }
-  
+
   const collection = db.get().collection('ticks');
   collection.insertOne(tick);
 };
@@ -38,13 +38,15 @@ const mapping = {
   "5_MIN": 2
 }
 
-exports.readLast = function (id, interval, multiplyWith, date) {
+
+
+exports.read = function (id, interval, multiplyWith, date) {
   return new Promise(async (resolve, reject) => {
     if (!mapping[interval]) {
       return reject(`Unknown interval, ${interval}`);
     }
     interval = (interval === "WEEK" ? 'isoWeek' : interval);
-    
+
     let start;
     if (interval=== "TOTAL") {
       start = 0;
@@ -54,19 +56,45 @@ exports.readLast = function (id, interval, multiplyWith, date) {
     } else {
       start = moment().startOf(interval).valueOf();
     }
-    
+
     const collection = db.get().collection('ticks');
 
-    const count = await collection.aggregate([ 
-      { $match: { "id": id, time: { $gte: start } } }, 
-      { $group: { 
-        _id : null, 
-        ticks : { 
-          $sum: { 
-            $ifNull: [ "$tick_count", 1 ] 
-          }  
-        } 
-      } 
+    const list = await collection.aggregate([
+      { $match: { "id": id, time: { $gte: start } } }]).toArray();
+
+    resolve(list); // TODO set correct divition
+  });
+}
+
+exports.readLast = function (id, interval, multiplyWith, date) {
+  return new Promise(async (resolve, reject) => {
+    if (!mapping[interval]) {
+      return reject(`Unknown interval, ${interval}`);
+    }
+    interval = (interval === "WEEK" ? 'isoWeek' : interval);
+
+    let start;
+    if (interval=== "TOTAL") {
+      start = 0;
+    } else if (interval === "5_MIN") {
+      const now = new Date().getTime();
+      start = now - MINUTE * 5;
+    } else {
+      start = moment().startOf(interval).valueOf();
+    }
+
+    const collection = db.get().collection('ticks');
+
+    const count = await collection.aggregate([
+      { $match: { "id": id, time: { $gte: start } } },
+      { $group: {
+        _id : null,
+        ticks : {
+          $sum: {
+            $ifNull: [ "$tick_count", 1 ]
+          }
+        }
+      }
     }]).next();
 
     if (!count) {
@@ -83,24 +111,24 @@ exports.readPeriod = function (id, interval, start_date) {
       return reject(`Unknown interval, ${interval}`);
     }
     interval = (interval === "WEEK" ? 'isoWeek' : interval);
-    
+
     const start = start_date.startOf(interval).valueOf();
     const end = start_date.endOf(interval).valueOf();
     const collection = db.get().collection('ticks');
 
-    const count = await collection.aggregate([ 
+    const count = await collection.aggregate([
       { $match: { "id": id, $and: [
-        {time: { $gte: start }}, 
+        {time: { $gte: start }},
         {time: { $lte: end }}
-      ] } }, 
-      { $group: { 
-        _id : null, 
-        ticks : { 
-          $sum: { 
-            $ifNull: [ "$tick_count", 1 ] 
-          }  
-        } 
-      } 
+      ] } },
+      { $group: {
+        _id : null,
+        ticks : {
+          $sum: {
+            $ifNull: [ "$tick_count", 1 ]
+          }
+        }
+      }
     }]).next();
 
     if (!count) {
@@ -145,14 +173,14 @@ exports.history = function (id, interval, start_date) {
       boundaries.push(id);
       buckets[id] = {
         label: moment(id).format(format),
-        ticks: 0, 
+        ticks: 0,
         kwh: 0
       }
     }
 
     const docs = await collection.aggregate([
       { "$match": { "id": id, $and: [
-        {time: { $gte: start }}, 
+        {time: { $gte: start }},
         {time: { $lte: end }}
       ] } },
       {
