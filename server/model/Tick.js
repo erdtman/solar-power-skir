@@ -38,25 +38,30 @@ const mapping = {
   "5_MIN": 2
 }
 
+const getStart = (interval) => {
+  if (interval=== "TOTAL") {
+    return 0;
+  }
 
+  if (interval === "5_MIN") {
+    const now = new Date().getTime();
+    return now - MINUTE * 5;
+  }
 
-exports.read = function (id, interval, multiplyWith, date) {
-  return new Promise(async (resolve, reject) => {
-    if (!mapping[interval]) {
-      return reject(`Unknown interval, ${interval}`);
-    }
-    interval = (interval === "WEEK" ? 'isoWeek' : interval);
+  return moment().startOf(interval).valueOf();
+}
 
-    let start;
-    if (interval=== "TOTAL") {
-      start = 0;
-    } else if (interval === "5_MIN") {
-      const now = new Date().getTime();
-      start = now - MINUTE * 5;
-    } else {
-      start = moment().startOf(interval).valueOf();
-    }
+const translateInterval = (interval) => {
+  if (!mapping[interval]) {
+    return "HOUR";
+  }
+  return (interval === "WEEK" ? 'isoWeek' : interval);
+}
 
+exports.read = function (id, interval) {
+  return new Promise(async (resolve) => {
+    const localInterval = translateInterval(interval);
+    const start = getStart(localInterval);
     const collection = db.get().collection('ticks');
 
     const list = await collection.aggregate([
@@ -66,25 +71,11 @@ exports.read = function (id, interval, multiplyWith, date) {
   });
 }
 
-exports.readLast = function (id, interval, multiplyWith, date) {
-  return new Promise(async (resolve, reject) => {
-    if (!mapping[interval]) {
-      return reject(`Unknown interval, ${interval}`);
-    }
-    interval = (interval === "WEEK" ? 'isoWeek' : interval);
-
-    let start;
-    if (interval=== "TOTAL") {
-      start = 0;
-    } else if (interval === "5_MIN") {
-      const now = new Date().getTime();
-      start = now - MINUTE * 5;
-    } else {
-      start = moment().startOf(interval).valueOf();
-    }
-
+exports.readLast = function (id, interval, multiplyWith) {
+  return new Promise(async (resolve) => {
+    const localInterval = translateInterval(interval);
+    const start = getStart(localInterval);
     const collection = db.get().collection('ticks');
-
     const count = await collection.aggregate([
       { $match: { "id": id, time: { $gte: start } } },
       { $group: {
@@ -107,13 +98,9 @@ exports.readLast = function (id, interval, multiplyWith, date) {
 
 exports.readPeriod = function (id, interval, start_date) {
   return new Promise(async (resolve, reject) => {
-    if (!mapping[interval]) {
-      return reject(`Unknown interval, ${interval}`);
-    }
-    interval = (interval === "WEEK" ? 'isoWeek' : interval);
-
-    const start = start_date.startOf(interval).valueOf();
-    const end = start_date.endOf(interval).valueOf();
+    const localInterval = translateInterval(interval)
+    const start = start_date.startOf(localInterval).valueOf();
+    const end = start_date.endOf(localInterval).valueOf();
     const collection = db.get().collection('ticks');
 
     const count = await collection.aggregate([
@@ -125,58 +112,63 @@ exports.readPeriod = function (id, interval, start_date) {
         _id : null,
         ticks : {
           $sum: {
-            $ifNull: [ "$tick_count", 1 ]
+            $ifNull: [ "$tick_count", 1 ] // handle old values without tick count
           }
         }
       }
     }]).next();
 
-    if (!count) {
-      return resolve(0);
+    if(count === null) {
+      return resolve(0)
     }
 
     resolve(count.ticks / 1000); // TODO set correct divition
   });
 }
 
+/*
+ * Returns [steps, stepsize, format]
+ */
+const getParameters = (interval, start_date) => {
+  if (interval === "DAY") {
+    return [24, HOUR, "HH:mm"];
+  }
+
+  if(interval === "MONTH") {
+    return [start_date.daysInMonth(), DAY, "Do"];
+  }
+
+  if(interval === "YEAR") {
+    return [start_date.weeksInYear(), WEEK, "[Vecka] W"];
+  }
+  throw Error(`Unknown interval '${interval}'`)
+}
+
+const getBoundry = (start, index, stepsize) => {
+  return start + (index * stepsize);
+}
+
 exports.history = function (id, interval, start_date) {
-  return new Promise(async (resolve, reject) => {
-    const collection = db.get().collection('ticks');
-
-    let stepsize = 0;
-    let steps = 0;
-    let format = ""
-
+  return new Promise(async (resolve) => {
     start_date = start_date || moment()
+
+    const collection = db.get().collection('ticks');
     const start = start_date.startOf(interval).valueOf();
     const end = start_date.endOf(interval).valueOf();
-    if (interval === "DAY") {
-      steps = 24;
-      stepsize = HOUR;
-      format = "HH:mm";
-    } else if(interval === "MONTH") {
-      steps = start_date.daysInMonth();
-      stepsize = DAY;
-      format = "Do";
-    } else if(interval === "YEAR") {
-      steps = start_date.weeksInYear()
-      stepsize = WEEK;
-      format = "[Vecka] W";
-    } else {
-      throw Error(`Unknown interval '${interval}'`)
-    }
+    const [steps, stepsize, format] = getParameters(interval, start_date);
 
-    const boundaries = [];
+    const boundaries = new Array(steps)
+    .fill(1)
+    .reduce((acc, _, index) => [...acc, getBoundry(start, index, stepsize)], []);
+
     const buckets = {};
-    for (let i = 0; i <= steps; i++) {
-      const id = start + (i * stepsize)
-      boundaries.push(id);
+    boundaries.forEach(id => {
       buckets[id] = {
         label: moment(id).format(format),
         ticks: 0,
         kwh: 0
       }
-    }
+    });
 
     const docs = await collection.aggregate([
       { "$match": { "id": id, $and: [
@@ -197,10 +189,9 @@ exports.history = function (id, interval, start_date) {
       { "$sort": { '_id': 1 } }
     ]).toArray();
 
-    docs.forEach(doc => {
-      if(doc._id === "Other") {
-        return;
-      }
+    docs
+    .filter(doc => doc._id !== "Other")
+    .forEach(doc => {
       buckets[doc._id].kwh = doc.kwh;
       buckets[doc._id].ticks = doc.ticks;
     });

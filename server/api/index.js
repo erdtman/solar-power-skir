@@ -19,13 +19,38 @@ router.get('/now', async (req, res) => {
   res.json(data);
 });
 
+const sweDay = {
+  "Sunday":     "Lördag",
+  "Saturday":   "Lördag",
+  "Friday":     "Fredag",
+  "Thursday":   "Torsdag",
+  "Wednesday":  "Onsdag",
+  "Tuesday":    "Tisdag",
+  "Monday":     "Måndag"
+}
+
+const sweMonth = {
+  "January":    "January",
+  "February":   "Februari",
+  "March":      "Mars",
+  "April":      "April",
+  "May":        "Maj",
+  "June":       "Juni",
+  "July":       "Juli",
+  "August":     "Augusti",
+  "September":  "September",
+  "October":    "Oktober",
+  "November":   "November",
+  "December":   "December"
+}
+
 const title = {
-  DAY(date) {
+  DAY(date, lookback) {
     const now = moment();
-    return now.isSame(date) ? `Idag` : date.format("YYYY-MM-DD");
+    return lookback === 0 ? `Idag` : sweDay[date.format("dddd")];
   },
   MONTH(date) {
-    return date.format('MMMM');
+    return sweMonth[date.format('MMMM')];
   },
   YEAR(date) {
     return date.format('YYYY')
@@ -51,7 +76,7 @@ router.get('/period', async (req, res) => {
   const date = moment().subtract(lookback, lookback_unit[interval]);
 
   const data = {
-    title: title[interval](date),
+    title: title[interval](date, lookback),
     tractor_garage: await tick.readPeriod('traktorgaraget', interval, date),
     glade: await tick.readPeriod('skogsglantan', interval, date),
     weave_room: await tick.readPeriod('weave_room', interval, date),
@@ -96,6 +121,19 @@ router.get('/tick/:id/last', async (req, res) => {
   res.send(lastX);
 });
 
+const getLabel =  (interval) => {
+  if (interval === "DAY") {
+    return "idag";
+  }
+  if (interval === "MONTH") {
+    return moment().format('MMMM');
+  }
+  if (interval === "YEAR") {
+    return moment().format('YYYY');
+  }
+  return "empty";
+}
+
 router.get('/tick/:id/graph', async (req, res) => {
   const lookback = Number(req.query.lookback || 0);
   const interval = req.query.interval || "DAY";
@@ -114,17 +152,8 @@ router.get('/tick/:id/graph', async (req, res) => {
 
   const history = await tick.history(id, interval, date);
 
-  let label = "empty";
-  if (interval === "DAY") {
-    label = "idag";
-  } else if (interval === "MONTH") {
-    label = moment().format('MMMM');
-  } else if (interval === "YEAR") {
-    label = moment().format('YYYY');
-  }
-
   res.json({
-    label: label,
+    label: getLabel(interval),
     history: history
   });
 });

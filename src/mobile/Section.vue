@@ -12,7 +12,7 @@
         </div>
         <div class="columns">
           <div class="column col-6">
-            <h5>Vävrummet</h5>
+            <h5 class="weav">Vävrummet</h5>
           </div>
           <div class="column col-6">
             <h5>{{data.weave_room}} KWh</h5>
@@ -20,7 +20,7 @@
         </div>
         <div class="columns">
           <div class="column col-6">
-            <h5>Skogsgläntan</h5>
+            <h5 class="glade">Skogsgläntan</h5>
           </div>
           <div class="column col-6">
             <h5>{{data.glade}} KWh</h5>
@@ -64,11 +64,13 @@ export default {
       try {
         const response = await axios.get(`/api/period?lookback=${this.lookback}&interval=${this.interval}`);
         this.data = response.data;
-        setTimeout(this.update, 60000);
       } catch (error) {
         console.log(`error: ${error.message}`);
       }
 
+      if (this.lookback !== 0) {
+        return; // we only refresh the view for last DAY, MONTH or YEAR
+      }
       setTimeout(this.update, 30000);
     }
   },

@@ -14,7 +14,7 @@
         </div>
         <div class="columns">
           <div class="column col-6">
-            <h5>Vävrummet</h5>
+            <h5 class="weav">Vävrummet</h5>
           </div>
           <div class="column col-6">
             <h5>{{data.weave_room}} KW</h5>
@@ -22,7 +22,7 @@
         </div>
         <div class="columns">
           <div class="column col-6">
-            <h5>Skogsgläntan</h5>
+            <h5 class="glade">Skogsgläntan</h5>
           </div>
           <div class="column col-6">
             <h5>{{data.glade}} KW</h5>
@@ -41,10 +41,17 @@
     <div class="child horisontal_scroll">
       <Section interval="DAY" lookback=0 />
       <Section interval="DAY" lookback=1 />
+      <Section interval="DAY" lookback=2 />
+      <Section interval="DAY" lookback=3 />
+      <Section interval="DAY" lookback=4 />
+      <Section interval="DAY" lookback=5 />
+      <Section interval="DAY" lookback=6 />
     </div>
     <div class="child horisontal_scroll">
       <Section interval="MONTH" lookback=0 />
       <Section interval="MONTH" lookback=1 />
+      <Section interval="MONTH" lookback=2 />
+      <Section interval="MONTH" lookback=3 />
     </div>
     <div class="child">
       <Section interval="YEAR" lookback=0 />
@@ -74,7 +81,6 @@ export default {
       try {
         const response = await axios.get("/api/now");
         this.data = response.data;
-        setTimeout(this.update, 60000);
       } catch (error) {
         console.log(`error: ${error.message}`);
       }

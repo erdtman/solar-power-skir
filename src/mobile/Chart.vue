@@ -27,7 +27,7 @@ export default {
           },
           {
             data: [],
-            backgroundColor: "#0000FF"
+            backgroundColor: "#0088FF"
           }
         ]
       },
@@ -113,7 +113,11 @@ export default {
       } catch (error) {
         console.log(`error: ${error.message}`);
       }
-      
+
+      if (this.lookback !== '0') {
+        return; // we only refresh the view for last DAY, MONTH or YEAR
+      }
+
       setTimeout(this.update, 30000);
     }
   }
