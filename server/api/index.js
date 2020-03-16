@@ -7,16 +7,11 @@ const moment = require('moment');
 const express = require('express');
 const router = express.Router();
 
-
-router.get('/now', async (req, res) => {
-  const data = {
-    tractor_garage: await tick.readLast('traktorgaraget', '5_MIN', 12),
-    glade: await tick.readLast('skogsglantan', '5_MIN', 12),
-    weave_room: await tick.readLast('weave_room', '5_MIN', 12),
-  };
-  data.total = (data.tractor_garage + data.weave_room + data.glade).toFixed(2);
-
-  res.json(data);
+const createData = (tractor_garage, glade, weave_room) =>({
+  tractor_garage: tractor_garage.toFixed(3),
+  glade: glade.toFixed(3),
+  weave_room: weave_room.toFixed(3),
+  total: (tractor_garage + weave_room + glade).toFixed(3)
 });
 
 const sweDay = {
@@ -63,29 +58,6 @@ const lookback_unit = {
   YEAR: 'years',
 }
 
-router.get('/period', async (req, res) => {
-  const lookback = Number(req.query.lookback || 0);
-  const interval = req.query.interval || "DAY";
-
-  console.log(`${interval} - lookback=${lookback}`);
-
-  if(!title[interval] || !lookback_unit[interval]) {
-    throw new Error(`Unhandeled intervall ${interval}`);
-  }
-
-  const date = moment().subtract(lookback, lookback_unit[interval]);
-
-  const data = {
-    title: title[interval](date, lookback),
-    tractor_garage: await tick.readPeriod('traktorgaraget', interval, date),
-    glade: await tick.readPeriod('skogsglantan', interval, date),
-    weave_room: await tick.readPeriod('weave_room', interval, date),
-  };
-  data.total = (data.tractor_garage + data.weave_room + data.glade).toFixed(2);
-
-  res.json(data);
-});
-
 router.post('/tick/:id', (req, res) => {
   const id = req.params.id;
 
@@ -97,6 +69,33 @@ router.post('/tick/:id', (req, res) => {
 
   tick.create(id, ticks);
   res.send();
+});
+
+router.get('/now', async (_, res) => {
+  const tractor_garage = await tick.readLast('traktorgaraget', '5_MIN', 12);
+  const glade = await tick.readLast('skogsglantan', '5_MIN', 12);
+  const weave_room = await tick.readLast('weave_room', '5_MIN', 12);
+  const data = createData(tractor_garage, glade, weave_room, 2);
+  res.json(data);
+});
+
+router.get('/period', async (req, res) => {
+  const lookback = Number(req.query.lookback || 0);
+  const interval = req.query.interval || "DAY";
+
+  if(!title[interval] || !lookback_unit[interval]) {
+    throw new Error(`Unhandeled intervall ${interval}`);
+  }
+
+  const date = moment().subtract(lookback, lookback_unit[interval]);
+
+  const tractor_garage = await tick.readPeriod('traktorgaraget', interval, date);
+  const glade = await tick.readPeriod('skogsglantan', interval, date);
+  const weave_room = await tick.readPeriod('weave_room', interval, date);
+  const data = createData(tractor_garage, glade, weave_room);
+  data.title = title[interval](date, lookback);
+
+  res.json(data);
 });
 
 router.get('/tick/:id', async (req, res) => {
@@ -121,39 +120,24 @@ router.get('/tick/:id/last', async (req, res) => {
   res.send(lastX);
 });
 
-const getLabel =  (interval) => {
-  if (interval === "DAY") {
-    return "idag";
-  }
-  if (interval === "MONTH") {
-    return moment().format('MMMM');
-  }
-  if (interval === "YEAR") {
-    return moment().format('YYYY');
-  }
-  return "empty";
-}
-
 router.get('/tick/:id/graph', async (req, res) => {
   const lookback = Number(req.query.lookback || 0);
   const interval = req.query.interval || "DAY";
+  const id = req.params.id;
 
-  console.log(`graph - ${interval} - lookback=${lookback}`);
+  if (!id) {
+    throw new Error({ code: 400, message: 'Missing id parameter' });
+  }
 
   if(!title[interval] || !lookback_unit[interval]) {
     throw new Error(`Unhandeled intervall ${interval}`);
   }
 
   const date = moment().subtract(lookback, lookback_unit[interval]);
-  const id = req.params.id;
-  if (!id) {
-    throw new Error({ code: 400, message: 'Missing id parameter' });
-  }
-
   const history = await tick.history(id, interval, date);
 
   res.json({
-    label: getLabel(interval),
+    label: title[interval](date, lookback),
     history: history
   });
 });

@@ -5,38 +5,11 @@
 const db = require('../db');
 const moment = require('moment');
 
-exports.create = function (id, tick_count) {
-  const tick = {
-    "id": id,
-    "time": new Date().getTime()
-  };
-
-  if (tick_count && tick_count !== '1') {
-    tick.tick_count = parseInt(tick_count, 10);
-  }
-
-  const collection = db.get().collection('ticks');
-  collection.insertOne(tick);
-};
-
 const SECOND = 1000;
 const MINUTE = SECOND * 60;
 const HOUR = MINUTE * 60;
 const DAY = HOUR * 24;
 const WEEK = DAY * 7
-const MONTH = DAY * 30;
-const YEAR = DAY * 365;
-
-const mapping = {
-  "MINUTE": MINUTE,
-  "HOUR": HOUR,
-  "DAY": DAY,
-  "WEEK": WEEK,
-  "MONTH": MONTH,
-  "YEAR": YEAR,
-  "TOTAL": 1,
-  "5_MIN": 2
-}
 
 const getStart = (interval) => {
   if (interval=== "TOTAL") {
@@ -52,11 +25,44 @@ const getStart = (interval) => {
 }
 
 const translateInterval = (interval) => {
-  if (!mapping[interval]) {
-    return "HOUR";
-  }
   return (interval === "WEEK" ? 'isoWeek' : interval);
 }
+
+/*
+ * Returns [steps, stepsize, format]
+ */
+const getParameters = (interval, start_date) => {
+  if (interval === "DAY") {
+    return [24, HOUR, "HH:mm"];
+  }
+
+  if(interval === "MONTH") {
+    return [start_date.daysInMonth(), DAY, "Do"];
+  }
+
+  if(interval === "YEAR") {
+    return [start_date.weeksInYear(), WEEK, "[Vecka] W"];
+  }
+  throw Error(`Unknown interval '${interval}'`)
+}
+
+const getBoundry = (start, index, stepsize) => {
+  return start + (index * stepsize);
+}
+
+exports.create = function (id, tick_count) {
+  const tick = {
+    "id": id,
+    "time": new Date().getTime()
+  };
+
+  if (tick_count && tick_count !== '1') {
+    tick.tick_count = parseInt(tick_count, 10);
+  }
+
+  const collection = db.get().collection('ticks');
+  collection.insertOne(tick);
+};
 
 exports.read = function (id, interval) {
   return new Promise(async (resolve) => {
@@ -124,28 +130,6 @@ exports.readPeriod = function (id, interval, start_date) {
 
     resolve(count.ticks / 1000); // TODO set correct divition
   });
-}
-
-/*
- * Returns [steps, stepsize, format]
- */
-const getParameters = (interval, start_date) => {
-  if (interval === "DAY") {
-    return [24, HOUR, "HH:mm"];
-  }
-
-  if(interval === "MONTH") {
-    return [start_date.daysInMonth(), DAY, "Do"];
-  }
-
-  if(interval === "YEAR") {
-    return [start_date.weeksInYear(), WEEK, "[Vecka] W"];
-  }
-  throw Error(`Unknown interval '${interval}'`)
-}
-
-const getBoundry = (start, index, stepsize) => {
-  return start + (index * stepsize);
 }
 
 exports.history = function (id, interval, start_date) {

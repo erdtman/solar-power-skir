@@ -41,17 +41,10 @@
     <div class="child horisontal_scroll">
       <Section interval="DAY" lookback=0 />
       <Section interval="DAY" lookback=1 />
-      <Section interval="DAY" lookback=2 />
-      <Section interval="DAY" lookback=3 />
-      <Section interval="DAY" lookback=4 />
-      <Section interval="DAY" lookback=5 />
-      <Section interval="DAY" lookback=6 />
     </div>
     <div class="child horisontal_scroll">
       <Section interval="MONTH" lookback=0 />
       <Section interval="MONTH" lookback=1 />
-      <Section interval="MONTH" lookback=2 />
-      <Section interval="MONTH" lookback=3 />
     </div>
     <div class="child">
       <Section interval="YEAR" lookback=0 />
@@ -76,7 +69,6 @@ export default {
     this.update();
   },
   methods: {
-
     async update() {
       try {
         const response = await axios.get("/api/now");
@@ -84,7 +76,6 @@ export default {
       } catch (error) {
         console.log(`error: ${error.message}`);
       }
-
       setTimeout(this.update, 30000);
     }
   },
