@@ -83,19 +83,19 @@ export default {
   methods: {
     async update() {
       try {
-        const [vavrummet, traktorgaraget, skogsglantan] = await Promise.all([
-        axios.get(`/api/tick/vavrummet/graph?interval=${this.interval}&lookback=${this.lookback}`),
+        const [weave_room, traktorgaraget, skogsglantan] = await Promise.all([
+        axios.get(`/api/tick/weave_room/graph?interval=${this.interval}&lookback=${this.lookback}`),
         axios.get(`/api/tick/traktorgaraget/graph?interval=${this.interval}&lookback=${this.lookback}`),
         axios.get(`/api/tick/skogsglantan/graph?interval=${this.interval}&lookback=${this.lookback}`)]);
 
-        this.chartOptions.title.text = vavrummet.data.label;
+        this.chartOptions.title.text = weave_room.data.label;
         this.chartData.labels = [];
-        vavrummet.data.history.forEach(element => {
+        weave_room.data.history.forEach(element => {
           this.chartData.labels.push(element.label);
         });
 
         this.chartData.datasets[0].data = [];
-        vavrummet.data.history.forEach(element => {
+        weave_room.data.history.forEach(element => {
           this.chartData.datasets[0].data.push(element.kwh);
         });
 
