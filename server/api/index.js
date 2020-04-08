@@ -59,7 +59,7 @@ const lookback_unit = {
 }
 
 router.post('/tick/:id', (req, res) => {
-  const start = Date.getMilliseconds();
+  const start = new Date().getMilliseconds();
   const id = req.params.id;
 
   if (!id) {
@@ -70,7 +70,7 @@ router.post('/tick/:id', (req, res) => {
 
   tick.create(id, ticks);
   res.send();
-  const end = Date.getMilliseconds();
+  const end = new Date().getMilliseconds();
   console.log(`id=${id}, tick_count=${req.body.tick_count}, last_rtt=${req.body.last_rtt}, time=${end - start}`);
 });
 
