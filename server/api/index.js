@@ -71,7 +71,7 @@ router.post('/tick/:id', (req, res) => {
   tick.create(id, ticks);
   res.send();
   const end = new Date().getMilliseconds();
-  console.log(`id=${id}, tick_count=${req.body.tick_count}, last_rtt=${req.body.last_rtt}, time=${end - start}`);
+  console.log(`id=${id}, tick_count=${req.body.tick_count}, last_rtt=${req.body.last_rtt}, time=${end - stat}, start_time=${req.body.start_time}`);
 });
 
 router.get('/now', async (_, res) => {
