@@ -65,11 +65,14 @@ router.post('/tick/:id', (req, res) => {
     throw new Error({ code: 400, message: 'Missing id parameter' });
   }
 
+  if(req.body.tick_count == 0) {
+    return res.send();;
+  }
+
   const ticks = req.body.tick_count || 1;
 
   tick.create(id, ticks);
   res.send();
-  console.log(`id=${id}, tick_count=${req.body.tick_count}, last_rtt=${req.body.last_rtt}, compensate_string=${req.body.compensate_string}`);
 });
 
 router.get('/now', async (_, res) => {
