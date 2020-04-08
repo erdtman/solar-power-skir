@@ -59,18 +59,19 @@ const lookback_unit = {
 }
 
 router.post('/tick/:id', (req, res) => {
+  const start = Date.getMilliseconds();
   const id = req.params.id;
 
   if (!id) {
     throw new Error({ code: 400, message: 'Missing id parameter' });
   }
 
-  console.log(`id= ${id}, tick_count=${req.body.tick_count}, last_rtt=${req.body.last_rtt}`);
-
   const ticks = req.body.tick_count || 1;
 
   tick.create(id, ticks);
   res.send();
+  const end = Date.getMilliseconds();
+  console.log(`id=${id}, tick_count=${req.body.tick_count}, last_rtt=${req.body.last_rtt}, time=${end - start}`);
 });
 
 router.get('/now', async (_, res) => {
