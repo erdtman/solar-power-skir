@@ -3,7 +3,8 @@
 'use strict';
 
 const db = require('../db');
-const moment = require('moment');
+const moment = require('moment-timezone');
+moment.tz.setDefault("Europe/Stockholm");
 
 const SECOND = 1000;
 const MINUTE = SECOND * 60;

@@ -3,7 +3,8 @@
 'use strict';
 
 const tick = require('../model/Tick.js');
-const moment = require('moment');
+const moment = require('moment-timezone');
+moment.tz.setDefault("Europe/Stockholm");
 const express = require('express');
 const router = express.Router();
 
