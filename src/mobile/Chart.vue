@@ -47,10 +47,11 @@ export default {
         scales: {
           yAxes: [
             {
-              stacked: true,
-              kwh: {
-                beginAtZero: true
+              ticks: {
+                suggestedMin: 0,
+                suggestedMax: 900
               },
+              stacked: true,
               scaleLabel: {
                 display: true,
                 labelString: "kWh"
@@ -73,6 +74,15 @@ export default {
     };
   },
   async mounted() {
+
+    const graphMax = {
+      "DAY": 20,
+      "MONTH": 180,
+      "YEAR": 1000,
+    }
+
+    this.chartOptions.scales.yAxes[0].ticks.suggestedMax = graphMax[this.interval];
+
     this.chart = new Chart(this.$refs.canvas, {
         type: this.chartType,
         data: this.chartData,

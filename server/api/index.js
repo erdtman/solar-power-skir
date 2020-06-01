@@ -16,7 +16,7 @@ const createData = (tractor_garage, glade, weave_room) =>({
 });
 
 const sweDay = {
-  "Sunday":     "Lördag",
+  "Sunday":     "Söndag",
   "Saturday":   "Lördag",
   "Friday":     "Fredag",
   "Thursday":   "Torsdag",
@@ -42,7 +42,6 @@ const sweMonth = {
 
 const title = {
   DAY(date, lookback) {
-    const now = moment();
     return lookback === 0 ? `Idag` : sweDay[date.format("dddd")];
   },
   MONTH(date) {
@@ -67,7 +66,7 @@ router.post('/tick/:id', (req, res) => {
   }
 
   if(req.body.tick_count == 0) {
-    return res.send();;
+    return res.send();
   }
 
   const ticks = req.body.tick_count || 1;

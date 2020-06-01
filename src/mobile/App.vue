@@ -45,6 +45,7 @@
     <div class="child horisontal_scroll">
       <Section interval="MONTH" lookback=0 />
       <Section interval="MONTH" lookback=1 />
+      <Section interval="MONTH" lookback=2 />
     </div>
     <div class="child">
       <Section interval="YEAR" lookback=0 />
