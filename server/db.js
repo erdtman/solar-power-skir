@@ -14,7 +14,7 @@ exports.connect = async function(url) {
       if (state.db) {
         return resolve();
       }
-      const client = await MongoClient.connect(url, { useNewUrlParser: true });  
+      const client = await MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
       state.db = client.db();
       resolve();
     } catch (error) {
