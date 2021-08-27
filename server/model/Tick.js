@@ -37,12 +37,12 @@ const getParameters = (interval, start_date) => {
     return [24, HOUR, "HH:mm"];
   }
 
-  if(interval === "MONTH") {
+  if (interval === "MONTH") {
     return [start_date.daysInMonth(), DAY, "Do"];
   }
 
-  if(interval === "YEAR") {
-    return [start_date.weeksInYear(), WEEK, "[Vecka] W"];
+  if (interval === "YEAR") {
+    return [12, -1, "MMM"];
   }
   throw Error(`Unknown interval '${interval}'`)
 }
@@ -140,11 +140,20 @@ exports.history = function (id, interval, start_date) {
     const collection = db.get().collection('ticks');
     const start = start_date.startOf(interval).valueOf();
     const end = start_date.endOf(interval).valueOf();
-    const [steps, stepsize, format] = getParameters(interval, start_date);
+    let [steps, stepsize, format] = getParameters(interval, start_date);
 
     const boundaries = new Array(steps)
     .fill(1)
-    .reduce((acc, _, index) => [...acc, getBoundry(start, index, stepsize)], []);
+    // .reduce((acc, _, index) => [...acc, getBoundry(start, index, stepsize)], []);
+
+    for (let index = 0; index < boundaries.length; index++) {
+      boundaries[index] = getBoundry(start, index, stepsize);
+      if (interval==="YEAR") {
+        start_date.month(index)
+        const local_start = start_date.startOf("MONTH")
+        boundaries[index] = getBoundry(local_start, 1, start_date.daysInMonth());
+      }
+    }
 
     const buckets = {};
     boundaries.forEach(id => {
