@@ -78,7 +78,7 @@ export default {
     const graphMax = {
       "DAY": 20,
       "MONTH": 180,
-      "YEAR": 1000,
+      "YEAR": 4000,
     }
 
     this.chartOptions.scales.yAxes[0].ticks.suggestedMax = graphMax[this.interval];
