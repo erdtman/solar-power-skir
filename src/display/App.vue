@@ -75,7 +75,7 @@
     </div>
     <div class="columns">
       <div class="column col-12">
-        <chart lookback="0" interval="DAY" height="450px"></chart>
+        <chart lookback="0" interval="DAY" height="400px"></chart>
       </div>
     </div>
   </div>
