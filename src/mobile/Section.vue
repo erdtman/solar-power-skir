@@ -43,7 +43,7 @@
 
 
 <script>
-import Chart from "./Chart.vue";
+import Chart from "../common/Chart.vue";
 import axios from "axios";
 
 export default {

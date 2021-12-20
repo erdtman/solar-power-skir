@@ -5,7 +5,7 @@ const { VueLoaderPlugin } = require('vue-loader')
 module.exports = {
   mode: 'development',
   entry: {
-    desktop: './src/desktop/app.js',
+    display: './src/display/app.js',
     mobile: './src/mobile/app.js',
   },
   output: {
