@@ -10,7 +10,7 @@ import {mixin as VueTimers} from 'vue-timers'
 
 export default {
   mixins: [VueTimers],
-  props: ["interval", "height", "lookback"],
+  props: ["interval", "height", "lookback", "display"],
   data() {
     return {
       chart: null,
@@ -60,7 +60,9 @@ export default {
           ],
           xAxes: [
             {
-              stacked: true
+              stacked: true,
+              ticks: {
+              },
             }
           ]
         },
@@ -79,6 +81,15 @@ export default {
       "DAY": 20,
       "MONTH": 180,
       "YEAR": 4000,
+    }
+
+    if(this.display) {
+      this.chartOptions.scales.yAxes[0].ticks.fontSize = 30
+      this.chartOptions.scales.yAxes[0].ticks.fontColor = "#FFFFFF"
+      this.chartOptions.scales.yAxes[0].scaleLabel.fontSize = 30
+      this.chartOptions.scales.yAxes[0].scaleLabel.fontColor = "#FFFFFF"
+      this.chartOptions.scales.xAxes[0].ticks.fontSize = 15
+      this.chartOptions.scales.xAxes[0].ticks.fontColor = "#FFFFFF"
     }
 
     this.chartOptions.scales.yAxes[0].ticks.suggestedMax = graphMax[this.interval];

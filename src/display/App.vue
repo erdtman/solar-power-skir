@@ -2,14 +2,14 @@
   <div class="container">
     <div class="columns">
       <div class="column col-4"></div>
-      <div class="column col-4">
-        <h1>Nu</h1>
+      <div class="column col-4" v-if="nowData !== null">
+        <h2>Nu!</h2>
         <div class="columns">
           <div class="column col-6">
             <h5 class="traktor">Traktorgaraget</h5>
           </div>
           <div class="column col-6">
-            <h5>P KW</h5>
+            <h5>{{nowData.tractor_garage}} KW</h5>
           </div>
         </div>
         <div class="columns">
@@ -17,7 +17,7 @@
             <h5 class="weav">Vävrummet</h5>
           </div>
           <div class="column col-6">
-            <h5>Q KW</h5>
+            <h5>{{nowData.weave_room}} KW</h5>
           </div>
         </div>
         <div class="columns">
@@ -25,7 +25,7 @@
             <h5 class="glade">Skogsgläntan</h5>
           </div>
           <div class="column col-6">
-            <h5>R KW</h5>
+            <h5>{{nowData.glade}} KW</h5>
           </div>
         </div>
         <div class="columns">
@@ -33,18 +33,18 @@
             <h5>Totalt</h5>
           </div>
           <div class="column col-6">
-            <h5>T KW</h5>
+            <h5>{{nowData.total}} KW</h5>
           </div>
         </div>
       </div>
-      <div class="column col-4">
-        <h1>Idag</h1>
-         <div class="columns">
+      <div class="column col-4" v-if="todayData !== null">
+        <h2>Idag</h2>
+        <div class="columns">
           <div class="column col-6">
             <h5 class="traktor">Traktorgaraget</h5>
           </div>
           <div class="column col-6">
-            <h5>Z KWh</h5>
+            <h5>{{todayData.tractor_garage}} KWh</h5>
           </div>
         </div>
         <div class="columns">
@@ -52,7 +52,7 @@
             <h5 class="weav">Vävrummet</h5>
           </div>
           <div class="column col-6">
-            <h5>Y KWh</h5>
+            <h5>{{todayData.weave_room}} KWh</h5>
           </div>
         </div>
         <div class="columns">
@@ -60,7 +60,7 @@
             <h5 class="glade">Skogsgläntan</h5>
           </div>
           <div class="column col-6">
-            <h5>X KWh</h5>
+            <h5>{{todayData.glade}} KWh</h5>
           </div>
         </div>
         <div class="columns">
@@ -68,14 +68,14 @@
             <h5>Totalt</h5>
           </div>
           <div class="column col-6">
-            <h5>T KWh</h5>
+            <h5>{{todayData.total}} KWh</h5>
           </div>
         </div>
       </div>
     </div>
     <div class="columns">
       <div class="column col-12">
-        <chart lookback="0" interval="DAY" height="400px"></chart>
+        <chart lookback="0" interval="DAY" height="400px" display=true></chart>
       </div>
     </div>
   </div>
@@ -92,7 +92,8 @@ export default {
   },
   data () {
     return {
-      data: null,
+      nowData: null,
+      todayData: null,
     }
   },
   async mounted() {
@@ -100,7 +101,15 @@ export default {
   },
   methods: {
     async update() {
-
+      try {
+        const nowResponse = await axios.get("/api/now");
+        this.nowData = nowResponse.data;
+        const todayResponse = await axios.get(`/api/period?lookback=0&interval=DAY`);
+        this.todayData = todayResponse.data;
+      } catch (error) {
+        console.log(`error: ${error.message}`);
+      }
+      setTimeout(this.update, 30000);
     }
   }
 
