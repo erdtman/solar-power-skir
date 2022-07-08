@@ -18,12 +18,8 @@ router.get('/', (req, res) => {
 router.post('/measurement', async (req, res) => {
   const waterData = await water.read();
 
-  console.log(req.body);
-
-  console.log(req.body["<rs><r i"]);
-
   const hexString = req.body["<rs><r i"].substring(14, 18);
-  console.log(hexString);
+
   if (waterData.measurements.length > 144) {
     waterData.measurements.shift();
   }
@@ -34,7 +30,7 @@ router.post('/measurement', async (req, res) => {
     time: new Date().getTime()
   };
 
-  console.log(waterData);
+  console.log(value);
 
   waterData.measurements.push(value)
   await water.write(waterData)
