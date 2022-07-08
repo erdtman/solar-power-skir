@@ -22,7 +22,7 @@ router.post('/measurement', async (req, res) => {
 
   console.log(req.body["<rs><r i"]);
 
-  const hexString = req.body["<rs><r i"].substring(13, 17);
+  const hexString = req.body["<rs><r i"].substring(14, 18);
   console.log(hexString);
   if (waterData.measurements.length > 144) {
     waterData.measurements.shift();
