@@ -4,16 +4,18 @@
 
 
 <script>
-import Chart from "chart.js";
+import { Chart, registerables} from "chart.js";
 import axios from "axios";
 import {mixin as VueTimers} from 'vue-timers'
+
+Chart.register(...registerables);
 
 export default {
   mixins: [VueTimers],
   props: ["interval", "height", "lookback", "display"],
   data() {
+    this.chart =  null;
     return {
-      chart: null,
       chartData: {
         labels: [],
         datasets: [
@@ -37,40 +39,38 @@ export default {
         animation: {
           duration: 0
         },
-        title: {
-          display: true,
-          position: "top",
-          fontStyle: "bold",
-          fontSize: 20
+        plugins: {
+          legend: {
+            display: false
+          },
+          title: {
+            display: true,
+            position: "top",
+            fontStyle: "bold",
+            fontSize: 20
+          },
+          tooltip: {
+            enabled: false
+          },
+          responsive: true,
         },
         responsive: true,
         scales: {
-          yAxes: [
-            {
-              ticks: {
-                suggestedMin: 0,
-                suggestedMax: 900
-              },
-              stacked: true,
-              scaleLabel: {
-                display: true,
-                labelString: "kWh"
-              }
+          y: {
+            ticks: {
+              suggestedMin: 0,
+              suggestedMax: 900
+            },
+            stacked: true,
+            scaleLabel: {
+              display: true,
+              labelString: "kWh"
             }
-          ],
-          xAxes: [
-            {
-              stacked: true,
-              ticks: {
-              },
-            }
-          ]
-        },
-        legend: {
-          display: false
-        },
-        tooltips: {
-          enabled: false
+          },
+          x: {
+            stacked: true,
+            ticks: {}
+          }
         }
       }
     };
@@ -84,15 +84,15 @@ export default {
     }
 
     if(this.display) {
-      this.chartOptions.scales.yAxes[0].ticks.fontSize = 30
-      this.chartOptions.scales.yAxes[0].ticks.fontColor = "#FFFFFF"
-      this.chartOptions.scales.yAxes[0].scaleLabel.fontSize = 30
-      this.chartOptions.scales.yAxes[0].scaleLabel.fontColor = "#FFFFFF"
-      this.chartOptions.scales.xAxes[0].ticks.fontSize = 15
-      this.chartOptions.scales.xAxes[0].ticks.fontColor = "#FFFFFF"
+      this.chartOptions.scales.y.ticks.fontSize = 30
+      this.chartOptions.scales.y.ticks.fontColor = "#FFFFFF"
+      this.chartOptions.scales.y.scaleLabel.fontSize = 30
+      this.chartOptions.scales.y.scaleLabel.fontColor = "#FFFFFF"
+      this.chartOptions.scales.x.ticks.fontSize = 15
+      this.chartOptions.scales.x.ticks.fontColor = "#FFFFFF"
     }
 
-    this.chartOptions.scales.yAxes[0].ticks.suggestedMax = graphMax[this.interval];
+    this.chartOptions.scales.y.ticks.suggestedMax = graphMax[this.interval];
 
     this.chart = new Chart(this.$refs.canvas, {
         type: this.chartType,
@@ -109,7 +109,7 @@ export default {
         axios.get(`/api/tick/traktorgaraget/graph?interval=${this.interval}&lookback=${this.lookback}`),
         axios.get(`/api/tick/skogsglantan/graph?interval=${this.interval}&lookback=${this.lookback}`)]);
 
-        this.chartOptions.title.text = weave_room.data.label;
+        this.chartOptions.plugins.title.text = weave_room.data.label;
         this.chartData.labels = [];
         weave_room.data.history.forEach(element => {
           this.chartData.labels.push(element.label);
@@ -131,6 +131,7 @@ export default {
         });
 
         this.chart.update();
+        console.log(`hajsdflajshdflasdhflkjsdhfsjkhadlfkjhs`);
       } catch (error) {
         console.log(`error: ${error.message}`);
       }
