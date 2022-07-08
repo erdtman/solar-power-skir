@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "watch": "webpack --watch",
-    "heroku-postbuild": "webpack -p"
+    "heroku-postbuild": "webpack --mode production"
   },
   "repository": {
     "type": "git",
