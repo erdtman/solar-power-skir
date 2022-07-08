@@ -10,12 +10,12 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
-
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ extended: true }));
 app.use(express.static('view'));
 app.use('/water', express.text({ type: '*/*' }),require('./water'));
 app.use('/api', require('./api'));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json({ extended: true }));
+
 
 const host = process.env.HOST || '127.0.0.1';
 const port = process.env.PORT || 8080;
