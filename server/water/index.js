@@ -43,7 +43,26 @@ router.get('/measurements', async (_, res) => {
 
   console.log(waterData);
 
-  res.json(waterData);
+  const labels = waterData.measurements.filter(value => !Number.isNaN(value.parsed)).map(value => {
+    return moment(value.time).format("YYYY-MM-DD HH:mm");
+  });
+  console.log(labels);
+
+  const dataset = waterData.measurements.filter(value => !Number.isNaN(value.parsed)).map(value => {
+    return (value.parsed * 1000).toFixed(0);
+  });
+  console.log(dataset);
+
+  const latest = waterData.measurements.at(-1)
+
+  res.json({
+    labels:labels,
+    dataset:dataset,
+    latest: {
+      value: (latest.parsed * 1000).toFixed(0),
+      time: moment(latest.time).format("YYYY-MM-DD HH:mm")
+    }
+  });
 });
 
 

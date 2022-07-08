@@ -7,6 +7,7 @@ module.exports = {
   entry: {
     display: './src/display/app.js',
     mobile: './src/mobile/app.js',
+    water: './src/water/app.js',
   },
   output: {
     path: __dirname + '/view',
