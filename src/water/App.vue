@@ -28,19 +28,19 @@ export default {
     return {
       latest: {time: "", value: ""},
       chartData: {
-        labels: ["a", "b", "c", "d", "e"],
+        labels: [],
         datasets: [
           {
             label: "Övre varningsnivå",
             backgroundColor: "#FF000",
             borderColor: 'rgb(255, 0, 0)',
-            data: [4,4,4,4,4],
+            data: [],
           },
           {
             label: "Undre varningsnivå",
             backgroundColor: "#FF000",
             borderColor: 'rgb(255, 0, 0)',
-            data: [2,2,2,2,2],
+            data: [],
           },{
             label: "Nivå",
             backgroundColor: "#2B65EC",
@@ -48,7 +48,7 @@ export default {
             fill: {
               target: "origin",
             },
-            data: [1,2,3,4,5],
+            data: [],
           },
 
 
@@ -87,6 +87,8 @@ export default {
           },
           y: {
             display: true,
+            min: 0,
+            max: 1300
           },
         },
       },
@@ -114,8 +116,8 @@ export default {
         this.chartData.datasets[0].data = [];
         this.chartData.datasets[1].data = [];
         response.data.dataset.forEach(element => {
-          this.chartData.datasets[0].data.push(400);
-          this.chartData.datasets[1].data.push(1300);
+          this.chartData.datasets[0].data.push(500);
+          this.chartData.datasets[1].data.push(1250);
         });
 
         this.latest = response.data.latest
