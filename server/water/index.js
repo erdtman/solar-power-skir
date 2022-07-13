@@ -30,8 +30,6 @@ router.post('/measurement', async (req, res) => {
     time: new Date().getTime()
   };
 
-  console.log(value);
-
   waterData.measurements.push(value)
   await water.write(waterData)
 
@@ -41,17 +39,13 @@ router.post('/measurement', async (req, res) => {
 router.get('/measurements', async (_, res) => {
   const waterData = await water.read();
 
-  console.log(waterData);
-
   const labels = waterData.measurements.filter(value => !Number.isNaN(value.parsed)).map(value => {
     return moment(value.time).format("YYYY-MM-DD HH:mm");
   });
-  console.log(labels);
 
   const dataset = waterData.measurements.filter(value => !Number.isNaN(value.parsed)).map(value => {
     return (value.parsed * 1000).toFixed(0);
   });
-  console.log(dataset);
 
   const latest = waterData.measurements.at(-1)
 
