@@ -16,26 +16,31 @@ router.get('/', (req, res) => {
 });
 
 router.post('/measurement', async (req, res) => {
-  const waterData = await water.read();
 
-  console.log(req.body);
+  try {
+    const waterData = await water.read();
 
-  const hexString = req.body["<rs><r i"].substring(14, 18);
+    console.log(req.body);
 
-  console.log(hexString);
+    const hexString = req.body["<rs><r i"].substring(14, 18);
 
-  if (waterData.measurements.length > 144) {
-    waterData.measurements.shift();
+    console.log(hexString);
+
+    if (waterData.measurements.length > 144) {
+      waterData.measurements.shift();
+    }
+
+    const value = {
+      raw: hexString,
+      parsed: Number('0x'+hexString)/1000*1.5,
+      time: new Date().getTime()
+    };
+
+    waterData.measurements.push(value)
+    await water.write(waterData)
+  } catch (error) {
+    console.log(error);
   }
-
-  const value = {
-    raw: hexString,
-    parsed: Number('0x'+hexString)/1000*1.5,
-    time: new Date().getTime()
-  };
-
-  waterData.measurements.push(value)
-  await water.write(waterData)
 
   res.send();
 });
