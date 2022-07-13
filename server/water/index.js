@@ -56,6 +56,8 @@ router.get('/measurements', async (_, res) => {
   const latest = waterData.measurements.at(-1)
 
   res.json({
+    lower_alert: 500,
+    upper_alert: 1250,
     labels:labels,
     dataset:dataset,
     latest: {

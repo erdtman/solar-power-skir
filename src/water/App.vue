@@ -116,8 +116,8 @@ export default {
         this.chartData.datasets[0].data = [];
         this.chartData.datasets[1].data = [];
         response.data.dataset.forEach(element => {
-          this.chartData.datasets[0].data.push(500);
-          this.chartData.datasets[1].data.push(1250);
+          this.chartData.datasets[0].data.push(response.data.lower_alert);
+          this.chartData.datasets[1].data.push(response.data.upper_alert);
         });
 
         this.latest = response.data.latest
