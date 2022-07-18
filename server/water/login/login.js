@@ -1,5 +1,5 @@
 const { default: axios } = require("axios");
-const { DESMakeKey, MakeCRC32 } = require("./encrypt.js")
+const { MakeCRC32 } = require("./encrypt.js")
 const { String2UTF8 } = require("./utility")
 
 
