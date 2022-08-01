@@ -3,7 +3,7 @@
 'use strict';
 
 const water = require('../model/Water.js');
-const { makeCall } = require('./alert/sender.js');
+const { makeCall, sendSMS } = require('./alert/sender.js');
 
 const moment = require('moment-timezone');
 moment.tz.setDefault("Europe/Stockholm");
@@ -41,12 +41,12 @@ router.post('/measurement', async (req, res) => {
 
     if (parsed > UPPER_LIMIT) {
       //await sendSMS(`VARNING: Vattennivän är över max`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
-      await makeCall(``, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
+      await makeCall(`https://solar-power-skir.herokuapp.com/water/voice/high.mp4`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
     }
 
     if (parsed < LOWER_LIMIT) {
       //await sendSMS(`VARNING: Vattennivän är under min`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
-      await makeCall(``, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
+      await makeCall(`https://solar-power-skir.herokuapp.com/water/voice/low.mp4`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
     }
 
     const value = {
@@ -57,6 +57,7 @@ router.post('/measurement', async (req, res) => {
     waterData.measurements.push(value)
     await water.write(waterData)
   } catch (error) {
+    await sendSMS(`Problem med vattenmonitoreringen!`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_ERROR_NUMBER);
     console.log(error);
   }
 

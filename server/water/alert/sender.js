@@ -42,7 +42,7 @@ module.exports.makeCall = async (messageURL, username, password, phonenumber) =>
         const url = "https://api.46elks.com/a1/calls";
 
         const action = {
-            play: "sound/dtmf/0P1P9205253183",
+            play: messageURL,
         };
         const data = {
             from: process.env.ELKS_FROM_NUMBER,
