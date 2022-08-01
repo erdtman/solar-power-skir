@@ -40,13 +40,13 @@ router.post('/measurement', async (req, res) => {
     const parsed = toCM(hexString);
 
     if (parsed > UPPER_LIMIT) {
-      //await sendSMS(`VARNING: Vattennivän är över max`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
-      await makeCall(`https://solar-power-skir.herokuapp.com/water/voice/high.mp4`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
+      await sendSMS(`VARNING: Vattennivän är över max`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
+      await makeCall(`https://solar-power-skir.herokuapp.com/water/voice/high.mp3`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
     }
 
     if (parsed < LOWER_LIMIT) {
-      //await sendSMS(`VARNING: Vattennivän är under min`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
-      await makeCall(`https://solar-power-skir.herokuapp.com/water/voice/low.mp4`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
+      await sendSMS(`VARNING: Vattennivän är under min`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
+      await makeCall(`https://solar-power-skir.herokuapp.com/water/voice/low.mp3`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_TO_NUMBER);
     }
 
     const value = {
