@@ -57,7 +57,7 @@ router.post('/measurement', async (req, res) => {
     waterData.measurements.push(value)
     await water.write(waterData)
   } catch (error) {
-    await sendSMS(`Problem med vattenmonitoreringen!`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_ERROR_NUMBER);
+    //await sendSMS(`Problem med vattenmonitoreringen!`, process.env.ELKS_USERNAME, process.env.ELKS_PASSWORD, process.env.ELKS_ERROR_NUMBER);
     console.log(error);
   }
 
