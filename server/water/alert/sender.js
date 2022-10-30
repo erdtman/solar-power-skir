@@ -25,8 +25,6 @@ module.exports.sendSMS = async (message, username, password, phonenumber) => {
             message: message
         };
 
-        console.log(data);
-
         const urlData = new URLSearchParams(data);
         const authHeader = getAuthorizationHeader(username, password)
         const config = getHeders(authHeader);
@@ -50,15 +48,11 @@ module.exports.makeCall = async (messageURL, username, password, phonenumber) =>
             voice_start: JSON.stringify(action)
         };
 
-        console.log(data);
-
         const urlData = new URLSearchParams(data);
         const authHeader = getAuthorizationHeader(username, password)
         const config = getHeders(authHeader);
 
-        const resp = await axios.post(url, urlData.toString(), config);
-        console.log(resp.data);
-
+        await axios.post(url, urlData.toString(), config);
     } catch (err) {
         console.error(err);
     }
