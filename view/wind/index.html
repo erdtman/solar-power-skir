@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+
+    <link rel="apple-touch-icon" href="/mobile/images/solar-power-icon-iphone.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/mobile/images/solar-power-icon-ipad.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/mobile/images/solar-power-icon-iphone-retina.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/mobile/images/solar-power-icon-ipad-retina.png">
+
+    <title>Solels produktion i Skir</title>
+    <style scoped>
+      body {
+        background-color: black;
+        color: white;
+        position: fixed;
+      }
+      h5.traktor::first-letter {
+        color: #00FF00
+      }
+      h5.weav::first-letter {
+        color: #FF0000
+      }
+      h5.glade::first-letter {
+        color: #0088FF
+      }
+      .scroll {
+        scroll-snap-type: y mandatory;
+        overflow-y: scroll;
+        height: 100vh;
+      }
+      .first_child {
+        scroll-snap-align: start;
+        min-width: 100vw;
+      }
+      .child {
+        scroll-snap-align: start;
+        height: 100vh;
+        min-width: 100vw;
+      }
+      .horisontal_scroll {
+        scroll-snap-type: x mandatory;
+        overflow-x: scroll;
+        width: 100vw;
+        display: flex;
+        flex-direction: row-reverse;
+      }
+      .section_title {
+        padding-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js" integrity="sha256-MZo5XY1Ah7Z2Aui4/alkfeiq3CopMdV/bbkc/Sh41+s=" crossorigin="anonymous"></script>
+    <script src="main.js" type="text/javascript"></script>
+  </body>
+</html>
