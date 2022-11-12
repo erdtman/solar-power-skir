@@ -30,7 +30,7 @@ async function now(count) {
 
 router.post('/count', async (req, res) => {
   try {
-    console.log(req.body);
+    console.log(req);
 
     if(!req.body.count) {
       throw new Error("missing count parameter");
