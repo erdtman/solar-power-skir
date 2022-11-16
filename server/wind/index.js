@@ -23,7 +23,7 @@ async function addTo(id, count) {
 async function now(count) {
   const windData = await wind.read("now");
   windData.count = count;
-  windData.time = moment().format("YYYY-MM-DD HH:MM");
+  windData.time = moment().format("YYYY-MM-DD HH:mm");
   console.log(windData);
   await wind.write("now", windData);
 }
@@ -59,6 +59,23 @@ router.get('/now', async (_, res) => {
   res.json({
     m_per_s: (windDataNow.count*8.75/60/100).toFixed(2),
     time: windDataNow.time
+  });
+});
+
+router.get('/period/:id', async (req, res) => {
+
+  const id = req.params.id;
+
+  if (!id) {
+    throw new Error({ code: 400, message: 'Missing id parameter' });
+  }
+
+  const seconds = 60*60;
+  const windData = await wind.read(id);
+  console.log(windData);
+  res.json({
+    m_per_s: (windData.count*8.75/seconds/100).toFixed(2),
+    time: windData.time
   });
 });
 
