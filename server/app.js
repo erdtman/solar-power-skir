@@ -13,9 +13,10 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ extended: true }));
 app.use(express.static('view'));
-app.use('/water', express.text({ type: '*/*' }),require('./water'));
-app.use('/api', require('./api'));
 app.use('/wind', require('./wind'));
+app.use('/water', require('./water'));
+app.use('/api', require('./api'));
+
 
 
 const host = process.env.HOST || '127.0.0.1';

@@ -108,22 +108,20 @@ router.get('/graph/:period', async (req, res) => {
       throw new Error({ code: 400, message: `Unknown period: ${period}` });
     }
 
-    const seconds = factor[period];
-    const respData = [];
-    const labels = []
-    const dataset = []
+    const windPromises = []
     for (let index = 0; index < 24; index++) {
-      const wind = await getWindData(index, period)
-      console.log(wind);
-      const data = {
-        m_per_s: (wind.count * 8.75 / seconds / 100).toFixed(2),
-        time: wind._id
-      }
-      labels.push(wind._id);
-      dataset.push(wind.count * 8.75 / seconds / 100);
-      respData.push(data);
+      windPromises.push(getWindData(index, period));
     }
 
+    const windData = await Promise.all(windPromises);
+
+    const labels = []
+    const dataset = []
+    windData.forEach(wind => {
+      console.log(wind);
+      labels.push(wind._id);
+      dataset.push(wind.count * 8.75 / factor[period] / 100);
+    })
 
     console.log({
       labels:labels,

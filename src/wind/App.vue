@@ -93,6 +93,8 @@ export default {
         this.chartData.datasets[0].data = response.data.dataset
 
         this.latest = response.data.latest;
+
+        this.chart.update();
       } catch (error) {
         console.log(`error: ${error.message}`);
       }
