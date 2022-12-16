@@ -1,33 +1,16 @@
 <template>
-  <div class="container scroll" v-if="latest !== null">
-    <div class="first_child">
-      <h1>Vind på nybygget!</h1>
-      <div class="columns">
-        <div class="column col-6">
-          <h5 class="">{{latest.time}}</h5>
-        </div>
-        <div class="column col-6">
-          <h5>{{latest.m_per_s}} m/s</h5>
-        </div>
-      </div>
-      <div class="chart-container" style="position: relative; height:80vh; width:90vw">
-        <chart :interval="'hours'"></chart>
-      </div>
-      <div class="chart-container" style="position: relative; height:80vh; width:90vw">
-        <chart :interval="'days'"></chart>
-      </div>
-    </div>
-  </div>
+  <canvas ref="canvas" :height="height"></canvas>
 </template>
 
+
 <script>
-import Chart from "./WindChart.vue";
+import { Chart, registerables} from "chart.js";
 import axios from "axios";
 
+Chart.register(...registerables);
+
 export default {
-  components: {
-    Chart
-  },
+  props: ["interval", "height"],
   data() {
     this.chart = null;
     return {
@@ -35,10 +18,14 @@ export default {
       chartData: {
         labels: [],
         datasets: [{
-            label: "Nivå",
+            label: "Vind",
             borderColor: "#0909FF",
             data: [],
-          },
+          },{
+            label: "cut in",
+            borderColor: 'rgb(0, 255, 0)',
+            data: [],
+          }
         ],
       },
       chartType: "line",
@@ -73,7 +60,9 @@ export default {
             display: true
           },
           y: {
-            display: true
+            display: true,
+            min: 0,
+            max: 10
           },
         },
       },
@@ -92,11 +81,11 @@ export default {
   methods: {
     async update() {
       try {
-        const response = await axios.get("/wind/graph/hours");
+        const response = await axios.get(`/wind/graph/${this.interval}`);
         console.log(response.data);
         this.chartData.labels = response.data.labels;
         this.chartData.datasets[0].data = response.data.dataset
-
+        this.chartData.datasets[1].data = Array(response.data.dataset.length).fill(2);
         this.latest = response.data.latest;
 
         this.chart.update();
@@ -105,6 +94,6 @@ export default {
       }
       setTimeout(this.update, 60000);
     },
-  },
+  }
 };
 </script>
