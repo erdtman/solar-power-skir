@@ -124,8 +124,8 @@ router.get('/graph/:period', async (req, res) => {
     })
 
     console.log({
-      labels:labels,
-      dataset:dataset,
+      labels: labels.reverse(),
+      dataset: dataset.reverse(),
     });
 
     const windDataNow = await wind.read("now");
