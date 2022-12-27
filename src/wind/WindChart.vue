@@ -86,13 +86,12 @@ export default {
         this.chartData.labels = response.data.labels;
         this.chartData.datasets[0].data = response.data.dataset
         this.chartData.datasets[1].data = Array(response.data.dataset.length).fill(2);
-        this.latest = response.data.latest;
 
         this.chart.update();
       } catch (error) {
         console.log(`error: ${error.message}`);
       }
-      setTimeout(this.update, 60000);
+      setTimeout(this.update, 5*60000);
     },
   }
 };

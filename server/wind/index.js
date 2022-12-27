@@ -14,6 +14,12 @@ router.get('/', (req, res) => {
   res.render('wind');
 });
 
+async function rest(id, count) {
+  const windData = await wind.read(id);
+  windData.count = 0;
+  await wind.write(id, windData);
+}
+
 async function addTo(id, count) {
   const windData = await wind.read(id);
   windData.count += count;
@@ -54,6 +60,10 @@ router.post('/count', async (req, res) => {
 });
 
 router.get('/now', async (_, res) => {
+  console.log("now reset");
+  await rest("2022-10-30");
+  await rest("2022-10");
+  console.log("now reset done");
   const windDataNow = await wind.read("now");
   console.log(windDataNow);
   res.json({
@@ -92,6 +102,13 @@ const formats = {
   hours: "YYYY-MM-DD-HH"
 }
 
+const window = {
+  years: 3,
+  months: 13,
+  days: 31,
+  hours: 25
+}
+
 const factor = {
   years: 60 * 60 * 24 * 365, // TODO adjust for leap year
   months: 60 * 60 * 24 * 30, // TODO fix exact days in month
@@ -103,13 +120,12 @@ router.get('/graph/:period', async (req, res) => {
   try {
 
     const period = req.params.period;
-
-    if (!period || !formats[period]) {
+    if (!period || !formats[period] || !window[period]) {
       throw new Error({ code: 400, message: `Unknown period: ${period}` });
     }
 
     const windPromises = []
-    for (let index = 0; index < 24; index++) {
+    for (let index = 1; index < window[period]; index++) {
       windPromises.push(getWindData(index, period));
     }
 
@@ -118,15 +134,31 @@ router.get('/graph/:period', async (req, res) => {
     const labels = []
     const dataset = []
     windData.forEach(wind => {
-      console.log(wind);
       labels.push(wind._id);
       dataset.push(wind.count * 8.75 / factor[period] / 100);
     })
 
+    labels.reverse();
+    dataset.reverse();
+
     console.log({
-      labels: labels.reverse(),
-      dataset: dataset.reverse(),
+      labels:labels,
+      dataset:dataset,
     });
+
+    res.json({
+      labels:labels,
+      dataset:dataset,
+    });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+});
+
+
+router.get('/latest', async (req, res) => {
+  try {
 
     const windDataNow = await wind.read("now");
     console.log(windDataNow);
@@ -137,8 +169,6 @@ router.get('/graph/:period', async (req, res) => {
         m_per_s: (windDataNow.count * 8.75 / 60 / 100).toFixed(2),
         time: windDataNow.time
       },
-      labels:labels,
-      dataset:dataset,
     });
   } catch (error) {
     console.log(error);

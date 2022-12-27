@@ -1,7 +1,7 @@
 <template>
   <div class="container scroll" v-if="data !== null">
     <div class="first_child">
-      <h1>Erdtmans solelsproduktion!</h1>
+      <h1>Solelsproduktion!</h1>
       <div class="column col-12">
         <h2>Nu!</h2>
         <div class="columns">

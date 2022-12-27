@@ -2,7 +2,7 @@
   <div class="container scroll" v-if="latest !== null">
     <div class="first_child">
       <h1>Vind på nybygget!</h1>
-      <div class="columns">
+      <div class="columns col-12">
         <div class="column col-6">
           <h5 class="">{{latest.time}}</h5>
         </div>
@@ -10,11 +10,71 @@
           <h5>{{latest.m_per_s}} m/s</h5>
         </div>
       </div>
+    </div>
+    <div class="child">
+      <h2>Senaste dygnet</h2>
+      <div class="columns col-12">
+        <div class="column col-6">
+          <h5 class="">Median: </h5>
+        </div>
+        <div class="column col-6">
+          <h5>X m/s</h5>
+        </div>
+      </div>
+      <div class="columns col-12">
+        <div class="column col-6">
+          <h5 class="">P75: </h5>
+        </div>
+        <div class="column col-6">
+          <h5>Y m/s</h5>
+        </div>
+      </div>
       <div class="chart-container" style="position: relative; height:80vh; width:90vw">
         <chart :interval="'hours'"></chart>
       </div>
+    </div>
+    <div class="child">
+      <h2>Senaste 30 dagarna</h2>
+      <div class="columns col-12">
+        <div class="column col-6">
+          <h5 class="">Median: </h5>
+        </div>
+        <div class="column col-6">
+          <h5>X m/s</h5>
+        </div>
+      </div>
+      <div class="columns col-12">
+        <div class="column col-6">
+          <h5 class="">P75: </h5>
+        </div>
+        <div class="column col-6">
+          <h5>Y m/s</h5>
+        </div>
+      </div>
       <div class="chart-container" style="position: relative; height:80vh; width:90vw">
         <chart :interval="'days'"></chart>
+      </div>
+    </div>
+    <div class="child">
+      <h2>Senaste 12 månaderna</h2>
+      <div class="columns col-12">
+        <div class="column col-6">
+          <h5 class="">Median: </h5>
+        </div>
+        <div class="column col-6">
+          <h5>X m/s</h5>
+        </div>
+      </div>
+      <div class="columns col-12">
+        <div class="column col-6">
+          <h5 class="">P75: </h5>
+        </div>
+        <div class="column col-6">
+          <h5>Y m/s</h5>
+        </div>
+      </div>
+      <div class="chart-container" style="position: relative; height:80vh; width:90vw">
+        <chart :interval="'months'"></chart>
       </div>
     </div>
   </div>
@@ -29,77 +89,20 @@ export default {
     Chart
   },
   data() {
-    this.chart = null;
     return {
-      latest: {time: "", value: ""},
-      chartData: {
-        labels: [],
-        datasets: [{
-            label: "Nivå",
-            borderColor: "#0909FF",
-            data: [],
-          },
-        ],
-      },
-      chartType: "line",
-      chartOptions: {
-        plugins: {
-          legend: {
-            display: false,
-          },
-          title: {
-            display: false,
-          },
-          tooltip: {
-            enabled: false,
-          },
-          animation: {
-            duration: 0,
-          },
-
-        },
-        elements: {
-            point:{
-              radius: 0
-            }
-          },
-        tension: 0.5,
-
-        responsive: true,
-        maintainAspectRatio: false,
-
-        scales: {
-          x: {
-            display: true
-          },
-          y: {
-            display: true
-          },
-        },
-      },
+      latest: {time: "", value: ""}
     };
   },
   async mounted() {
-    var config = {
-      type: this.chartType,
-      data: this.chartData,
-      options: this.chartOptions,
-    };
-    this.chart = new Chart(this.$refs.canvas, config);
-
+    console.log("mounted");
     this.update();
   },
   methods: {
     async update() {
       try {
-        const response = await axios.get("/wind/graph/hours");
+        const response = await axios.get("/wind/latest");
         console.log(response.data);
-        this.chartData.labels = response.data.labels;
-        this.chartData.datasets[0].data = response.data.dataset
-
         this.latest = response.data.latest;
-
-        this.chart.update();
       } catch (error) {
         console.log(`error: ${error.message}`);
       }
