@@ -60,10 +60,6 @@ router.post('/count', async (req, res) => {
 });
 
 router.get('/now', async (_, res) => {
-  console.log("now reset");
-  await rest("2022-10-30");
-  await rest("2022-10");
-  console.log("now reset done");
   const windDataNow = await wind.read("now");
   console.log(windDataNow);
   res.json({
