@@ -1,5 +1,23 @@
 <template>
-  <canvas ref="canvas" :height="height"></canvas>
+  <div class="columns col-12">
+    <div class="column col-6">
+      <h5 class="">Median: </h5>
+    </div>
+    <div class="column col-6">
+      <h5>{{p50}} m/s</h5>
+    </div>
+  </div>
+  <div class="columns col-12">
+    <div class="column col-6">
+      <h5 class="">P75: </h5>
+    </div>
+    <div class="column col-6">
+      <h5>{{p75}} m/s</h5>
+    </div>
+  </div>
+  <div class="chart-container" style="position: relative; height:80vh; width:90vw">
+    <canvas ref="canvas" :height="height"></canvas>
+  </div>
 </template>
 
 
@@ -14,7 +32,8 @@ export default {
   data() {
     this.chart = null;
     return {
-      latest: {time: "", value: ""},
+      p50: 0,
+      p75: 0,
       chartData: {
         labels: [],
         datasets: [{
@@ -82,7 +101,9 @@ export default {
     async update() {
       try {
         const response = await axios.get(`/wind/graph/${this.interval}`);
-        console.log(response.data);
+
+        this.p50 = response.data.p50.toFixed(2);
+        this.p75 = response.data.p75.toFixed(2);
         this.chartData.labels = response.data.labels;
         this.chartData.datasets[0].data = response.data.dataset
         this.chartData.datasets[1].data = Array(response.data.dataset.length).fill(2);

@@ -4,6 +4,7 @@
 
 const wind = require('../model/Wind.js');
 
+const summary = require('summary');
 const moment = require('moment-timezone');
 moment.tz.setDefault("Europe/Stockholm");
 const express = require('express');
@@ -14,7 +15,8 @@ router.get('/', (req, res) => {
   res.render('wind');
 });
 
-async function rest(id, count) {
+// Debug function
+async function reset(id) {
   const windData = await wind.read(id);
   windData.count = 0;
   await wind.write(id, windData);
@@ -36,8 +38,6 @@ async function now(count) {
 
 router.post('/count', async (req, res) => {
   try {
-    console.log(req.body);
-
     if (!req.body.count) {
       throw new Error("missing count parameter");
     }
@@ -50,41 +50,42 @@ router.post('/count', async (req, res) => {
     await addTo(nowTime.format("YYYY-MM"), count);
     await addTo(nowTime.format("YYYY"), count);
     await now(count);
-
+    res.send();
   } catch (error) {
-    console.log("typiskt");
     console.log(error);
+    res.sendStatus(500);
   }
-
-  res.send();
 });
+
 
 router.get('/now', async (_, res) => {
-  const windDataNow = await wind.read("now");
-  console.log(windDataNow);
-  res.json({
-    m_per_s: (windDataNow.count * 8.75 / 60 / 100).toFixed(2),
-    time: windDataNow.time
-  });
-});
+  try {
+    const windDataNow = await wind.read("now");
 
-router.get('/period/:id', async (req, res) => {
-
-  const id = req.params.id;
-
-  if (!id) {
-    throw new Error({ code: 400, message: 'Missing id parameter' });
+    res.json({
+        m_per_s: (windDataNow.count * 8.75 / 60 / 100).toFixed(2),
+        time: windDataNow.time
+    });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
   }
-
-  const seconds = 60 * 60;
-  const windData = await wind.read(id);
-  console.log(windData);
-  res.json({
-    m_per_s: (windData.count * 8.75 / seconds / 100).toFixed(2),
-    time: windData.time
-  });
 });
 
+// Debug function, not used
+router.get('/period/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      throw new Error({ code: 400, message: 'Missing id parameter' });
+    }
+    const windData = await wind.read(id);
+    res.json(windData);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+});
 
 async function getWindData(lookback, period) {
   const id = moment().subtract(lookback, period).format(formats[period]);
@@ -106,15 +107,14 @@ const window = {
 }
 
 const factor = {
-  years: 60 * 60 * 24 * 365, // TODO adjust for leap year
-  months: 60 * 60 * 24 * 30, // TODO fix exact days in month
+  years: 60 * 60 * 24 * 365,
+  months: 60 * 60 * 24 * 30,
   days: 60 * 60 * 24,
   hours: 60 * 60
 }
 
 router.get('/graph/:period', async (req, res) => {
   try {
-
     const period = req.params.period;
     if (!period || !formats[period] || !window[period]) {
       throw new Error({ code: 400, message: `Unknown period: ${period}` });
@@ -126,23 +126,21 @@ router.get('/graph/:period', async (req, res) => {
     }
 
     const windData = await Promise.all(windPromises);
-
     const labels = []
     const dataset = []
     windData.forEach(wind => {
       labels.push(wind._id);
       dataset.push(wind.count * 8.75 / factor[period] / 100);
-    })
+    });
 
     labels.reverse();
     dataset.reverse();
 
-    console.log({
-      labels:labels,
-      dataset:dataset,
-    });
+    const summaryData = summary(dataset);
 
     res.json({
+      p50: summaryData.quartile(0.50),
+      p75: summaryData.quartile(0.75),
       labels:labels,
       dataset:dataset,
     });
@@ -151,27 +149,5 @@ router.get('/graph/:period', async (req, res) => {
     res.sendStatus(500);
   }
 });
-
-
-router.get('/latest', async (req, res) => {
-  try {
-
-    const windDataNow = await wind.read("now");
-    console.log(windDataNow);
-
-
-    res.json({
-      latest: {
-        m_per_s: (windDataNow.count * 8.75 / 60 / 100).toFixed(2),
-        time: windDataNow.time
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
-  }
-});
-
-
 
 module.exports = router;
