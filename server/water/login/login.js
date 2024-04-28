@@ -50,7 +50,7 @@ module.exports.calculateStep1 = function (m_oContext) {
     m_oContext.m_iKey1B2 = Math.floor(Math.random() * 4294967296) >>> 0;
 */
 
-m_oContext.m_iKey1A1 = 10;
+    m_oContext.m_iKey1A1 = 10;
     m_oContext.m_iKey1A2 = 20;
     m_oContext.m_iKey1B1 = 30;
     m_oContext.m_iKey1B2 = 40;
@@ -62,16 +62,16 @@ module.exports.login = async function (oTracer) {
     oTracer.m_iFinishFlag = 0;
     const password = "LOGO";
 
-    //const response0 = await axios.get('http://solar-power-skir.herokuapp.com/water/login/challenge1')
-    const response0 = await axios.get('http://127.0.0.1:8080/water/login/challenge1')
+    const response0 = await axios.get('http://solar-power-skir.herokuapp.com/water/login/challenge1')
+    //const response0 = await axios.get('http://127.0.0.1:8080/water/login/challenge1')
 
     const challenge1 = response0.data;
     console.log(`challenge1: ${challenge1}`);
     const response1 = await axios.post('http://192.168.0.3/AJAX', challenge1)
     console.log(`response1.data: ${response1.data}`);
 
-    //const response1_5 = await axios.get(`http://solar-power-skir.herokuapp.com/water/login/challenge2?data=${response1.data}`);
-    const response1_5 = await axios.get(`http://127.0.0.1:8080/water/login/challenge2?data=${response1.data}`);
+    const response1_5 = await axios.get(`http://solar-power-skir.herokuapp.com/water/login/challenge2?data=${response1.data}`);
+    //const response1_5 = await axios.get(`http://127.0.0.1:8080/water/login/challenge2?data=${response1.data}`);
     console.log(response1_5.data);
     const config = {
         headers: {
