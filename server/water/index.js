@@ -106,6 +106,7 @@ const auth_context = {
 
 router.get('/login/challenge1', async (_, res) => {
   console.log("login challenge1");
+  console.log(auth_context);
 
   auth.calculateStep1(auth_context)
   res.send(`UAMCHAL:3,4,${auth_context.m_iKey1A1},${auth_context.m_iKey1A2},${auth_context.m_iKey1B1},${auth_context.m_iKey1B2}`);
@@ -114,7 +115,7 @@ router.get('/login/challenge1', async (_, res) => {
 
 router.get('/login/challenge2', async (req, res) => {
   console.log("login challenge2");
-
+  console.log(auth_context);
   const password = process.env.LOGO_PASSWORD;
   const data = req.query.data
   const arrResult = auth.parseResponse(data, 3);

@@ -56,14 +56,14 @@ module.exports.login = async function (oTracer) {
     oTracer.m_iFinishFlag = 0;
     const password = "LOGO";
 
-    const response0 = await axios.get('http://127.0.0.1:8080/water/login/challenge1')
+    const response0 = await axios.get('http://solar-power-skir.herokuapp.com/water/login/challenge1')
 
     const challenge1 = response0.data;//calculateStep1(oTracer);
     console.log(`challenge1: ${challenge1}`);
     const response1 = await axios.post('http://192.168.0.3/AJAX', challenge1)
     console.log(`response1.data: ${response1.data}`);
 
-    const response1_5 = await axios.get(`http://127.0.0.1:8080/water/login/challenge2?data=${response1.data}`);
+    const response1_5 = await axios.get(`http://solar-power-skir.herokuapp.com/water/login/challenge2?data=${response1.data}`);
 
     const config = {
         headers: {
