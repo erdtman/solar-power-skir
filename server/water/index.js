@@ -98,7 +98,6 @@ const auth_context = {
   m_iLang: "1",
   // m_oButtonLogin: button#button_login
   // m_oInputPassword: input#input_password
-  m_sPassword: "LOGO",
   m_sPublicKey1: "0",
   m_sPublicKey2: "0",
   m_sUserName: "Web User"
@@ -106,11 +105,13 @@ const auth_context = {
 
 router.get('/login/challenge1', async (_, res) => {
   console.log("login challenge1");
+  console.log("context before");
   console.log(auth_context);
 
-  auth.calculateStep1(auth_context)
+  auth.calculateStep1(auth_context);
+  console.log("context after");
+  console.log(auth_context);
   res.send(`UAMCHAL:3,4,${auth_context.m_iKey1A1},${auth_context.m_iKey1A2},${auth_context.m_iKey1B1},${auth_context.m_iKey1B2}`);
-
 });
 
 router.get('/login/challenge2', async (req, res) => {
