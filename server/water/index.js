@@ -4,6 +4,8 @@
 
 const water = require('../model/Water.js');
 const { makeCall, sendSMS } = require('./alert/sender.js');
+const auth = require("./login/login.js")
+
 
 const moment = require('moment-timezone');
 moment.tz.setDefault("Europe/Stockholm");
@@ -90,5 +92,39 @@ router.get('/measurements', async (_, res) => {
   });
 });
 
+const auth_context = {
+  m_bKeeySignIn: false,
+  m_bLogToCustomizedSite: false,
+  m_iLang: "1",
+  // m_oButtonLogin: button#button_login
+  // m_oInputPassword: input#input_password
+  m_sPassword: "LOGO",
+  m_sPublicKey1: "0",
+  m_sPublicKey2: "0",
+  m_sUserName: "Web User"
+}
+
+router.get('/login/challenge1', async (_, res) => {
+  console.log("login challenge1");
+
+  auth.calculateStep1(auth_context)
+  res.send(`UAMCHAL:3,4,${auth_context.m_iKey1A1},${auth_context.m_iKey1A2},${auth_context.m_iKey1B1},${auth_context.m_iKey1B2}`);
+
+});
+
+router.get('/login/challenge2', async (req, res) => {
+  console.log("login challenge2");
+
+  const password = process.env.LOGO_PASSWORD;
+  const data = req.query.data
+  const arrResult = auth.parseResponse(data, 3);
+
+  const challenge2 = auth.calculateStep2(auth_context, arrResult[2], password);
+
+  res.json({
+    "security_hint": arrResult[1],
+    "challenge2": challenge2
+  });
+});
 
 module.exports = router;

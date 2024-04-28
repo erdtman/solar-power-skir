@@ -1,31 +1,20 @@
 const { default: axios } = require("axios");
 const { MakeCRC32 } = require("./encrypt.js")
-const { String2UTF8 } = require("./utility")
+const { String2UTF8 } = require("./utility");
 
 
 //////////////////////////////////////////////////////////////////////////
 //login APIs:
 function LoginHandlerStep2(responseText, m_oContext) {
-    const sResponseText = "" + responseText;
-    const arrResult = sResponseText.split(",");
-    if (isNaN(parseInt(arrResult[0]))) {
-        throw new Error("s2 logical error 603");
-    }
-
-    if (parseInt(arrResult[0]) != 700) {
-        throw new Error(`s2 error ${arrResult[0]}`);
-    }
-
-    if (arrResult.length != 2) {
-        throw new Error(`s2 invalid response on step1`);
-    }
+    const arrResult = parseResponse(responseText, 2);
 
     m_oContext.m_sRef = arrResult[1];
     console.log(`login success: ${arrResult[1]}`);
 }
 
-async function LoginHandlerStep1(sResponseText, m_oContext) {
-    const arrResult = sResponseText.split(",");
+
+const parseResponse = (data, items) => {
+    const arrResult = data.split(",");
 
     if (isNaN(parseInt(arrResult[0]))) {
         throw new Error("logical error 603");
@@ -35,39 +24,57 @@ async function LoginHandlerStep1(sResponseText, m_oContext) {
         throw new Error(`error ${arrResult[0]}`);
     }
 
-    if (arrResult.length != 3) {
-        throw new Error(`invalid response on step1`);
+    if (arrResult.length != items) {
+        throw new Error(`invalid response item number missmatch`);
     }
 
-    m_oContext.m_sRef = arrResult[1];
-    m_oContext.m_iKey2 = parseInt(arrResult[2]) >>> 0;
+    return arrResult
+}
 
-    var sPasswordToken = m_oContext.m_sPassword + "+" + m_oContext.m_iKey2;
-    sPasswordToken = sPasswordToken.substr(0, 32);
-    const iPasswordToken = (MakeCRC32(String2UTF8(sPasswordToken)) ^ m_oContext.m_iKey2) >>> 0;
-    const iServerChallengeToken = (m_oContext.m_iKey1A1 ^ m_oContext.m_iKey1A2 ^ m_oContext.m_iKey1B1 ^ m_oContext.m_iKey1B2 ^ m_oContext.m_iKey2) >>> 0;
-    const challenge = `UAMLOGIN:${m_oContext.m_sUserName},${iPasswordToken},${iServerChallengeToken}`;
+module.exports.parseResponse = parseResponse;
+module.exports.calculateStep2 = function(m_oContext, key, password) {
+    key = parseInt(key) >>> 0;
+    let sPasswordToken = password + "+" + key;
+    sPasswordToken = sPasswordToken.substring(0, 32);
+    const iPasswordToken = (MakeCRC32(String2UTF8(sPasswordToken)) ^ key) >>> 0;
+    const iServerChallengeToken = (m_oContext.m_iKey1A1 ^ m_oContext.m_iKey1A2 ^ m_oContext.m_iKey1B1 ^ m_oContext.m_iKey1B2 ^ key) >>> 0;
+    return `UAMLOGIN:${m_oContext.m_sUserName},${iPasswordToken},${iServerChallengeToken}`;
+}
+
+
+module.exports.calculateStep1 = function (m_oContext) {
+    m_oContext.m_iKey1A1 = Math.floor(Math.random() * 4294967296) >>> 0;
+    m_oContext.m_iKey1A2 = Math.floor(Math.random() * 4294967296) >>> 0;
+    m_oContext.m_iKey1B1 = Math.floor(Math.random() * 4294967296) >>> 0;
+    m_oContext.m_iKey1B2 = Math.floor(Math.random() * 4294967296) >>> 0;
+
+    return `UAMCHAL:3,4,${m_oContext.m_iKey1A1},${m_oContext.m_iKey1A2},${m_oContext.m_iKey1B1},${m_oContext.m_iKey1B2}`
+}
+
+
+module.exports.login = async function (oTracer) {
+    oTracer.m_iFinishFlag = 0;
+    const password = "LOGO";
+
+    const response0 = await axios.get('http://127.0.0.1:8080/water/login/challenge1')
+
+    const challenge1 = response0.data;//calculateStep1(oTracer);
+    console.log(`challenge1: ${challenge1}`);
+    const response1 = await axios.post('http://192.168.0.3/AJAX', challenge1)
+    console.log(`response1.data: ${response1.data}`);
+
+    const response1_5 = await axios.get(`http://127.0.0.1:8080/water/login/challenge2?data=${response1.data}`);
 
     const config = {
         headers: {
-            "Security-Hint": m_oContext.m_sRef
+            "Security-Hint": response1_5.data.security_hint
         }
     }
 
-    const response =  await axios.post('http://192.168.0.3/AJAX', challenge, config)
-    LoginHandlerStep2(response.data, m_oContext);
-}
-
-module.exports = async function Login(oTracer) {
-    oTracer.m_iFinishFlag = 0;
-    oTracer.m_iKey1A1 = Math.floor(Math.random() * 4294967296) >>> 0;
-    oTracer.m_iKey1A2 = Math.floor(Math.random() * 4294967296) >>> 0;
-    oTracer.m_iKey1B1 = Math.floor(Math.random() * 4294967296) >>> 0;
-    oTracer.m_iKey1B2 = Math.floor(Math.random() * 4294967296) >>> 0;
-
-    const challenge = `UAMCHAL:3,4,${oTracer.m_iKey1A1},${oTracer.m_iKey1A2},${oTracer.m_iKey1B1},${oTracer.m_iKey1B2}`
-
-    const response = await axios.post('http://192.168.0.3/AJAX', challenge)
-    LoginHandlerStep1(response.data, oTracer);
+    const challenge2 = response1_5.data.challenge2;//calculateStep2(oTracer, arrResult[2], password);
+    console.log(`challenge2: ${challenge2}`);
+    const response2 =  await axios.post('http://192.168.0.3/AJAX', challenge2, config)
+    console.log(`response2.data: ${response2.data}`);
+    LoginHandlerStep2(response2.data, oTracer);
 
 }
