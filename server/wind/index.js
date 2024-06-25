@@ -113,12 +113,6 @@ const factor = {
   hours: 60 * 60
 }
 
-const time_factor = {
-  years: 24 * 365,
-  months: 24 * 30,
-  days: 24,
-  hours: 1
-}
 
 router.get('/graph/:period', async (req, res) => {
   try {
@@ -144,18 +138,13 @@ router.get('/graph/:period', async (req, res) => {
     dataset.reverse();
 
     const summaryData = summary(dataset);
-    const dataset_wh = dataset.map(value => {
-      value = value < 2 ? 0 : value;
-      return value * value * time_factor[period];
-    });
 
     res.json({
       p50: summaryData.quartile(0.50),
       p75: summaryData.quartile(0.75),
       w_produced: summaryData.sum(),
       labels:labels,
-      dataset_wind: dataset,
-      dataset_wh: dataset_wh,
+      dataset: dataset
     });
   } catch (error) {
     console.log(error);

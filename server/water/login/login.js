@@ -66,9 +66,7 @@ module.exports.login = async function (oTracer) {
     //const response0 = await axios.get('http://127.0.0.1:8080/water/login/challenge1')
 
     const challenge1 = response0.data;
-    console.log(`challenge1: ${challenge1}`);
     const response1 = await axios.post('http://192.168.0.3/AJAX', challenge1)
-    console.log(`response1.data: ${response1.data}`);
 
     const response1_5 = await axios.get(`http://solar-power-skir.herokuapp.com/water/login/challenge2?data=${response1.data}`);
     //const response1_5 = await axios.get(`http://127.0.0.1:8080/water/login/challenge2?data=${response1.data}`);
@@ -79,11 +77,9 @@ module.exports.login = async function (oTracer) {
         }
     }
 
-    const challenge2 = response1_5.data.challenge2;//calculateStep2(oTracer, arrResult[2], password);
-    console.log(config);
-    console.log(`challenge2: XX${challenge2}XX`);
+    const challenge2 = response1_5.data.challenge2;
     const response2 =  await axios.post('http://192.168.0.3/AJAX', challenge2, config)
-    console.log(`response2.data: ${response2.data}`);
+
     LoginHandlerStep2("" + response2.data, oTracer);
 
 }
