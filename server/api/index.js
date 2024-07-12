@@ -65,6 +65,8 @@ router.post('/tick/:id', (req, res) => {
     throw new Error({ code: 400, message: 'Missing id parameter' });
   }
 
+  console.log(´id: ${id}, ticks: ${req.body.tick_count }´);
+
   if(req.body.tick_count == 0) {
     return res.send();
   }
