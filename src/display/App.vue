@@ -1,8 +1,7 @@
 <template>
   <div class="container">
     <div class="columns">
-      <div class="column col-4"></div>
-      <div class="column col-4" v-if="nowData !== null">
+      <div class="column col-6" v-if="nowData !== null">
         <h2>Nu!</h2>
         <div class="columns">
           <div class="column col-6">
@@ -30,6 +29,14 @@
         </div>
         <div class="columns">
           <div class="column col-6">
+            <h5 class="glade">Ladugården</h5>
+          </div>
+          <div class="column col-6">
+            <h5>{{nowData.barn}} KW</h5>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column col-6">
             <h5>Totalt</h5>
           </div>
           <div class="column col-6">
@@ -37,7 +44,7 @@
           </div>
         </div>
       </div>
-      <div class="column col-4" v-if="todayData !== null">
+      <div class="column col-6" v-if="todayData !== null">
         <h2>Idag</h2>
         <div class="columns">
           <div class="column col-6">
@@ -65,6 +72,14 @@
         </div>
         <div class="columns">
           <div class="column col-6">
+            <h5 class="glade">Ladugården</h5>
+          </div>
+          <div class="column col-6">
+            <h5>{{todayData.barn}} KWh</h5>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column col-6">
             <h5>Totalt</h5>
           </div>
           <div class="column col-6">
@@ -75,7 +90,7 @@
     </div>
     <div class="columns">
       <div class="column col-12">
-        <chart lookback="0" interval="DAY" height="400px" display=true></chart>
+        <chart lookback="0" interval="DAY" height="100px" display=true></chart>
       </div>
     </div>
   </div>
