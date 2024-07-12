@@ -28,6 +28,14 @@
         </div>
         <div class="columns">
           <div class="column col-6">
+            <h5 class="barn">Ladugården</h5>
+          </div>
+          <div class="column col-6">
+            <h5>{{data.barn}} KWh</h5>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column col-6">
             <h5>Totalt</h5>
           </div>
           <div class="column col-6">

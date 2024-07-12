@@ -30,6 +30,14 @@
         </div>
         <div class="columns">
           <div class="column col-6">
+            <h5 class="barn">Ladugården</h5>
+          </div>
+          <div class="column col-6">
+            <h5>{{data.barn}} KW</h5>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column col-6">
             <h5>Totalt</h5>
           </div>
           <div class="column col-6">
@@ -59,6 +67,8 @@
     <div class="child horisontal_scroll">
       <Section interval="YEAR" lookback=0 />
       <Section interval="YEAR" lookback=1 />
+      <Section interval="YEAR" lookback=2 />
+      <Section interval="YEAR" lookback=3 />
     </div>
   </div>
 </template>

@@ -30,6 +30,10 @@ export default {
           {
             data: [],
             backgroundColor: "#0088FF"
+          },
+          {
+            data: [],
+            backgroundColor: "#FFFF00"
           }
         ]
       },
@@ -104,10 +108,12 @@ export default {
   methods: {
     async update() {
       try {
-        const [weave_room, traktorgaraget, skogsglantan] = await Promise.all([
+        const [weave_room, traktorgaraget, skogsglantan, barn] = await Promise.all([
         axios.get(`/api/tick/weave_room/graph?interval=${this.interval}&lookback=${this.lookback}`),
         axios.get(`/api/tick/traktorgaraget/graph?interval=${this.interval}&lookback=${this.lookback}`),
-        axios.get(`/api/tick/skogsglantan/graph?interval=${this.interval}&lookback=${this.lookback}`)]);
+        axios.get(`/api/tick/skogsglantan/graph?interval=${this.interval}&lookback=${this.lookback}`),
+        axios.get(`/api/tick/barn/graph?interval=${this.interval}&lookback=${this.lookback}`)]);
+
 
         this.chartOptions.plugins.title.text = weave_room.data.label;
         this.chartData.labels = [];
@@ -128,6 +134,11 @@ export default {
         this.chartData.datasets[2].data = [];
         skogsglantan.data.history.forEach(element => {
           this.chartData.datasets[2].data.push(element.kwh);
+        });
+
+        this.chartData.datasets[3].data = [];
+        barn.data.history.forEach(element => {
+          this.chartData.datasets[3].data.push(element.kwh);
         });
 
         this.chart.update();

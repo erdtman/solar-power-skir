@@ -8,11 +8,12 @@ moment.tz.setDefault("Europe/Stockholm");
 const express = require('express');
 const router = express.Router();
 
-const createData = (tractor_garage, glade, weave_room) =>({
+const createData = (tractor_garage, glade, weave_room, barn) =>({
   tractor_garage: tractor_garage.toFixed(3),
   glade: glade.toFixed(3),
   weave_room: weave_room.toFixed(3),
-  total: (tractor_garage + weave_room + glade).toFixed(3)
+  barn: barn.toFixed(3),
+  total: (tractor_garage + weave_room + glade + barn).toFixed(3)
 });
 
 const sweDay = {
@@ -81,7 +82,8 @@ router.get('/now', async (_, res) => {
   const tractor_garage = await tick.readLast('traktorgaraget', '5_MIN', 12);
   const glade = await tick.readLast('skogsglantan', '5_MIN', 12);
   const weave_room = await tick.readLast('weave_room', '5_MIN', 12);
-  const data = createData(tractor_garage, glade, weave_room, 2);
+  const barn = await tick.readLast('barn', '5_MIN', 12);
+  const data = createData(tractor_garage, glade, weave_room, barn);
   res.json(data);
 });
 
@@ -98,7 +100,8 @@ router.get('/period', async (req, res) => {
   const tractor_garage = await tick.readPeriod('traktorgaraget', interval, date);
   const glade = await tick.readPeriod('skogsglantan', interval, date);
   const weave_room = await tick.readPeriod('weave_room', interval, date);
-  const data = createData(tractor_garage, glade, weave_room);
+  const barn = await tick.readPeriod('barn', interval, date);
+  const data = createData(tractor_garage, glade, weave_room, barn);
   data.title = title[interval](date, lookback);
 
   res.json(data);
