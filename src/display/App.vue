@@ -90,7 +90,7 @@
     </div>
     <div class="columns">
       <div class="column col-12">
-        <chart lookback="0" interval="DAY" height="100px" display=true></chart>
+        <chart lookback="0" interval="DAY" height="250px" display=true></chart>
       </div>
     </div>
   </div>

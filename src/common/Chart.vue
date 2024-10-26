@@ -82,9 +82,9 @@ export default {
   async mounted() {
 
     const graphMax = {
-      "DAY": 20,
-      "MONTH": 180,
-      "YEAR": 4000,
+      "DAY": 30,
+      "MONTH": 250,
+      "YEAR": 5000,
     }
 
     if(this.display) {
@@ -96,7 +96,7 @@ export default {
       this.chartOptions.scales.x.ticks.fontColor = "#FFFFFF"
     }
 
-    this.chartOptions.scales.y.ticks.suggestedMax = graphMax[this.interval];
+    this.chartOptions.scales.y.suggestedMax = graphMax[this.interval];
 
     this.chart = new Chart(this.$refs.canvas, {
         type: this.chartType,
