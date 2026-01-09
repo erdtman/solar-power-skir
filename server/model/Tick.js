@@ -10,7 +10,8 @@ const SECOND = 1000;
 const MINUTE = SECOND * 60;
 const HOUR = MINUTE * 60;
 const DAY = HOUR * 24;
-const WEEK = DAY * 7
+const WEEK = DAY * 7;
+const TICKS_PER_KWH = 1000;
 
 const getStart = (interval) => {
   if (interval=== "TOTAL") {
@@ -74,7 +75,7 @@ exports.read = function (id, interval) {
     const list = await collection.aggregate([
       { $match: { "id": id, time: { $gte: start } } }]).toArray();
 
-    resolve(list); // TODO set correct divition
+    resolve(list);
   });
 }
 
@@ -99,7 +100,7 @@ exports.readLast = function (id, interval, multiplyWith) {
       return resolve(0);
     }
 
-    resolve(count.ticks / 1000 * multiplyWith); // TODO set correct divition
+    resolve(count.ticks / TICKS_PER_KWH * multiplyWith);
   });
 }
 
@@ -129,7 +130,7 @@ exports.readPeriod = function (id, interval, start_date) {
       return resolve(0)
     }
 
-    resolve(count.ticks / 1000); // TODO set correct divition
+    resolve(count.ticks / TICKS_PER_KWH);
   });
 }
 
@@ -179,7 +180,7 @@ exports.history = function (id, interval, start_date) {
           }
         }
       },
-      { "$addFields": { "kwh": { '$divide': ['$ticks', 1000] } } },
+      { "$addFields": { "kwh": { '$divide': ['$ticks', TICKS_PER_KWH] } } },
       { "$sort": { '_id': 1 } }
     ]).toArray();
 
