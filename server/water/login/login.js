@@ -71,13 +71,13 @@ module.exports.login = async function (oTracer) {
     const response1_5 = await axios.get(`http://solar-power-skir.herokuapp.com/water/login/challenge2?data=${response1.data}`);
     //const response1_5 = await axios.get(`http://127.0.0.1:8080/water/login/challenge2?data=${response1.data}`);
     console.log(response1_5.data);
+    // Response is plain text: line 1 = security hint, line 2 = challenge2
+    const [security_hint, challenge2] = response1_5.data.split("\n");
     const config = {
         headers: {
-            "Security-Hint": response1_5.data.security_hint
+            "Security-Hint": security_hint
         }
     }
-
-    const challenge2 = response1_5.data.challenge2;
     const response2 =  await axios.post('http://192.168.0.3/AJAX', challenge2, config)
 
     LoginHandlerStep2("" + response2.data, oTracer);
